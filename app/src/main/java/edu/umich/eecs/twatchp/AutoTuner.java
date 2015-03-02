@@ -78,19 +78,19 @@ public class AutoTuner {
             int IDEAL = (int)(44100.0/(player.CHIRP.length + player.SPACE));
             boolean rerun = false;
 
-            if (!finetune) { // Once in finetune, we stay there.
-                if (numFound > (IDEAL - 2) && numFound < (IDEAL + 2)) {
-                    finetune = true;
-                } else if (numFound > (IDEAL/2 - 2) && numFound < (IDEAL/2 + 2)) {
-                    Log.v(TAG, "Overlapped");
-                    adjustAmount = (player.CHIRP.length + player.SPACE)/4;
-                    rerun = true;
-                }
-                else {
-                    adjustAmount = 300;
-                    rerun = true;
-                }
+            //if (!finetune) { // Once in finetune, we stay there.
+            if (numFound > (IDEAL - 2) && numFound < (IDEAL + 2)) {
+                finetune = true;
+            } else if (numFound > (IDEAL/2 - 2) && numFound < (IDEAL/2 + 2)) {
+                Log.v(TAG, "Overlapped");
+                adjustAmount = (player.CHIRP.length + player.SPACE)/4;
+                rerun = true;
             }
+            else {
+                adjustAmount = 300;
+                rerun = true;
+            }
+            //}
 
             if (finetune) {
                 double [] leftmic = (double[])channels[1];

@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
 
     public void initializeTWatch() {
         player = new Player(this);
-        player.setSoftwareVolume(0.05);
+        player.setSoftwareVolume(0.001);
         player.setSpace((int)(0.05*44100));
         player.turnOffSound(true);
         player.startPlaying();
@@ -253,9 +253,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        showAutotuneStep();
+        //showAutotuneStep();
         //startAutotune();
-        //doneAutotune(true);
+        doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -318,25 +318,31 @@ public class MainActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
+        /*
         Map<Integer, short[]> map = new HashMap<Integer, short[]>();
 
         map.put(R.id.chirpSound, Player.CHIRP);
-        /*
         map.put(R.id.pnSound, Player.PN);
         map.put(R.id.goldSound, Player.GOLD);
-        */
         map.put(R.id.whitenoiseSound, Player.WN);
-
-
         map.put(R.id.highWhitenoiseSound, Player.WNHIGH);
         map.put(R.id.highWhitenoiseHannSound, Player.WNHIGHHANN);
         map.put(R.id.highChirpSound, Player.CHIRPHIGH);
         map.put(R.id.highChirpHannSound, Player.CHIRPHIGHHANN);
-
-
         int id = item.getItemId();
         player.changeSound(map.get(id));
         Toast.makeText(this, "Changed sound", Toast.LENGTH_LONG).show();
+        */
+        int id = item.getItemId();
+        if (id == R.id.volumeHigh) {
+            player.setSoftwareVolume(0.125);
+        } else if (id == R.id.volumeLow) {
+            player.setSoftwareVolume(0.025);
+        } else if (id == R.id.volumeMedium) {
+            player.setSoftwareVolume(0.05);
+        }
+
         //noinspection SimplifiableIfStatement
 
         return super.onOptionsItemSelected(item);
