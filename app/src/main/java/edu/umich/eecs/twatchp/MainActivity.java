@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
         player = new Player(this);
         player.setSoftwareVolume(0.001);
         player.setSpace((int)(0.05*44100));
-        player.turnOffSound(true);
+        player.turnOffSound();
         player.startPlaying();
 
         btTap = new SpiralBuffer("BTap");
@@ -211,13 +211,13 @@ public class MainActivity extends Activity {
         Log.v(TAG, "Starting auto tuner");
         player.changeSound(Player.CHIRP);
         bsocket.tellWatch(SocketThread.START_AUTOTUNE);
-        player.turnOffSound(false);
+        player.turnOnSound();
         autotuner.start();
     }
 
     public void doneAutotune (boolean success) {
         bsocket.tellWatch(SocketThread.STOP_AUTOTUNE);
-        player.turnOffSound(true);
+        player.turnOffSound();
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
             player.changeSound(Player.WN);
@@ -233,7 +233,8 @@ public class MainActivity extends Activity {
         if (numbytes == 0) return;
         if (btTap.isTapOpen() == false) {
             addInfo("~~running~~");
-            player.turnOffSound(false);
+            player.turnOnSound();
+            player.playAligner();
             fsaver.startNewFile();
             btTap.openTap();
             recTap.openTap();

@@ -87,7 +87,7 @@ public class FileSaver extends Thread {
                         watch_tmp.close();
                     } catch (Exception e) {}
 
-                    mainActivity.player.turnOffSound(true);
+                    mainActivity.player.turnOffSound();
 
                     String filepath = Environment.getExternalStorageDirectory().getPath();
                     File file = new File(filepath, AUDIO_RECORDER_FOLDER);
