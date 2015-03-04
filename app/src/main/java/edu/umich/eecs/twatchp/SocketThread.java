@@ -21,6 +21,8 @@ class SocketThread extends Thread {
     public static byte START_BORDER= 2;
     public static byte START_NORMAL = 3;
 
+    public static byte CHANGE_VOLUME = 4;
+
     public SocketThread(BluetoothSocket socket, MainActivity myactivity, TapBuffer tap) {
         mmSocket = socket;
         InputStream tmpIn = null;
@@ -63,6 +65,14 @@ class SocketThread extends Thread {
         // The input loop above might be locked on the inputstream.read
         try {
             mmOutStream.write(COMMAND);
+        } catch (Exception e) {}
+    }
+
+    public void setVolume (double volume) {
+        try {
+            byte volumeByte = (byte)((int)((double)volume * 100));
+            mmOutStream.write(CHANGE_VOLUME);
+            mmOutStream.write(volumeByte);
         } catch (Exception e) {}
     }
 

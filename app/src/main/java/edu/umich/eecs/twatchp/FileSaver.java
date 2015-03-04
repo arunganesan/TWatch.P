@@ -18,6 +18,7 @@ public class FileSaver extends Thread {
     boolean running = true;
     byte [] tmpBuffer = new byte [44100];
 
+    int saved_count = 0;
     FileOutputStream phone_tmp, watch_tmp;
 
     String TAG = "FileSaver";
@@ -112,9 +113,18 @@ public class FileSaver extends Thread {
                     //recData.trimToSize();
                     System.gc();
 
+
+
                     try {
                         Thread.sleep(1000);
+                        saved_count++;
                         mainActivity.ready();
+
+                        if (saved_count >= 9) {
+                            saved_count = 0;
+                            mainActivity.startAutotune();;
+                        }
+
                     } catch (Exception e) {
 
                     }

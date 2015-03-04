@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class MainActivity extends Activity {
     BluetoothAdapter mBluetoothAdapter;
     SocketThread bsocket;
     Button autotuneButton;
+    SeekBar phoneVolume;
 
     Player player;
     Recorder recorder;
@@ -75,19 +77,7 @@ public class MainActivity extends Activity {
         String fontPath = "fonts/CaviarDreams.ttf";
         Typeface tf = Typeface.createFromAsset(getAssets(), fontPath);
         statusText.setTypeface(tf);
-
-        autotuneButton = new Button(this);
-        autotuneButton.setText("Initiate Autotune");
-        autotuneButton.setBackgroundColor(0xffcacaca);
-        autotuneButton.setAlpha((float) 0.0);
-
-        final RelativeLayout rl = (RelativeLayout)findViewById(R.id.parentView);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        lp.addRule(RelativeLayout.BELOW, R.id.statusText);
-        lp.setMargins(0,100,0,0);
-        rl.addView(autotuneButton, lp);
-
+        autotuneButton = (Button)findViewById(R.id.autotuneButton);
 
         autotuneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,6 +87,28 @@ public class MainActivity extends Activity {
                 //rl.removeView(autotuneButton);
             }
         });
+
+        phoneVolume = (SeekBar) findViewById(R.id.seekBar);
+        phoneVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progress;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.v(TAG, "Progress changed");
+                this.progress = progress;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                Log.v(TAG, "Starting");
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Log.v(TAG, "Done, letting go - " + progress + "/" + seekBar.getMax());
+            }
+        });
+
     }
 
     public void initializeTWatch() {
@@ -254,9 +266,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        //showAutotuneStep();
+        showAutotuneStep();
         //startAutotune();
-        doneAutotune(true);
+        //doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -336,6 +348,8 @@ public class MainActivity extends Activity {
         Toast.makeText(this, "Changed sound", Toast.LENGTH_LONG).show();
         */
         int id = item.getItemId();
+
+
         if (id == R.id.volumeHigh) {
             player.setSoftwareVolume(0.125);
         } else if (id == R.id.volumeLow) {
@@ -343,6 +357,7 @@ public class MainActivity extends Activity {
         } else if (id == R.id.volumeMedium) {
             player.setSoftwareVolume(0.05);
         }
+
 
         //noinspection SimplifiableIfStatement
 
