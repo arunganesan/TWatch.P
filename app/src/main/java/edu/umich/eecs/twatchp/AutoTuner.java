@@ -85,10 +85,12 @@ public class AutoTuner {
                 Log.v(TAG, "Overlapped");
                 adjustAmount = (player.CHIRP.length + player.SPACE)/4;
                 rerun = true;
+                finetune = false;
             }
             else {
                 adjustAmount = 300;
                 rerun = true;
+                finetune = false;
             }
             //}
 
