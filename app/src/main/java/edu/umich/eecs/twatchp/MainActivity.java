@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
 
     public void initializeTWatch() {
         player = new Player(this);
-        player.setSoftwareVolume(0.001);
+        player.setSoftwareVolume(0.05);
         player.setSpace((int)(0.05*44100));
         player.turnOffSound();
         player.startPlaying();
@@ -356,6 +356,8 @@ public class MainActivity extends Activity {
             player.setSoftwareVolume(0.025);
         } else if (id == R.id.volumeMedium) {
             player.setSoftwareVolume(0.05);
+        } else if (id == R.id.volumeOff) {
+            player.setSoftwareVolume(0);
         }
 
 

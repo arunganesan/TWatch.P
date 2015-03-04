@@ -82,7 +82,11 @@ public class Player {
         this.tweakBy = amount;
     }
 
-    public void setSoftwareVolume (double softwareVolume) { this.softwareVolume = softwareVolume; }
+    public void setSoftwareVolume (double softwareVolume) {
+        //this.softwareVolume = 0;
+        this.softwareVolume = softwareVolume;
+
+    }
     public double getSoftwareVolume () { return softwareVolume; }
 
     public void startPlaying () {

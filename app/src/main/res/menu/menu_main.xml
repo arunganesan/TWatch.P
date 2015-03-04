@@ -2,6 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
 
+    <item android:id="@+id/volumeOff" android:title="Off volume"
+        android:orderInCategory="100" android:showAsAction="never" />
+
 
     <item android:id="@+id/volumeLow" android:title="Low volume"
         android:orderInCategory="100" android:showAsAction="never" />
