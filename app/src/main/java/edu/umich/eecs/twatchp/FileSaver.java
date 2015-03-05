@@ -116,7 +116,7 @@ public class FileSaver extends Thread {
 
 
                     try {
-                        Thread.sleep(1000);
+                        //Thread.sleep(1000);
                         saved_count++;
                         mainActivity.ready();
 
