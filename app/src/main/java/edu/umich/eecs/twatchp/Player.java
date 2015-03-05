@@ -42,11 +42,14 @@ public class Player {
     int SPACE; // = (int)(44100*0.1);
     //int SPACE = (int)(44100*0.5);
 
+    MainActivity myActivity;
+
 
     public Player(MainActivity myActivity) {
         resetSpace();
         AudioManager am = (AudioManager) myActivity.getSystemService(Context.AUDIO_SERVICE);
         am.setStreamVolume(am.STREAM_MUSIC, am.getStreamMaxVolume(am.STREAM_MUSIC), 0);
+        this.myActivity = myActivity;
     }
 
     public void changeSound (short [] newSound) {
@@ -84,9 +87,13 @@ public class Player {
 
     public void setSoftwareVolume (double softwareVolume) {
         //this.softwareVolume = 0;
-        this.softwareVolume = softwareVolume;
-
+        //this.softwareVolume = softwareVolume;
+        AudioManager am = (AudioManager) myActivity.getSystemService(Context.AUDIO_SERVICE);
+        int maxVol = am.getStreamMaxVolume(am.STREAM_MUSIC);
+        int setVolume = (int) (((float)maxVol) * softwareVolume);
+        am.setStreamVolume(am.STREAM_MUSIC, setVolume, 0);
     }
+
     public double getSoftwareVolume () { return softwareVolume; }
 
     public void startPlaying () {
