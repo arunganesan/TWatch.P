@@ -341,18 +341,16 @@ public class MainActivity extends Activity {
         player.changeSound(map.get(id));
         Toast.makeText(this, "Changed sound", Toast.LENGTH_LONG).show();
         */
-        int id = item.getItemId();
 
-
-        if (id == R.id.volumeHigh) {
-            player.setSoftwareVolume(0.125);
-        } else if (id == R.id.volumeLow) {
-            player.setSoftwareVolume(0.025);
-        } else if (id == R.id.volumeMedium) {
-            player.setSoftwareVolume(0.05);
-        } else if (id == R.id.volumeOff) {
-            player.setSoftwareVolume(0);
+        switch (item.getItemId()) {
+            case R.id.volumeLowest: player.setSoftwareVolume(0.005); break;
+            case R.id.volumeLow: player.setSoftwareVolume(0.05); break;
+            case R.id.volumeMedium: player.setSoftwareVolume(0.1); break;
+            case R.id.volumeHigh: player.setSoftwareVolume(0.5); break;
+            case R.id.volumeHighest: player.setSoftwareVolume(1); break;
         }
+
+
 
 
         //noinspection SimplifiableIfStatement

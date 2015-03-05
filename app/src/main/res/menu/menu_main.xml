@@ -2,17 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
 
-    <item android:id="@+id/volumeOff" android:title="Off volume"
+    <item android:id="@+id/volumeLowest" android:title="Lowest"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/volumeLow" android:title="Low"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/volumeMedium" android:title="Medium"
         android:orderInCategory="100" android:showAsAction="never" />
 
 
-    <item android:id="@+id/volumeLow" android:title="Low volume"
+    <item android:id="@+id/volumeHigh" android:title="High"
         android:orderInCategory="100" android:showAsAction="never" />
 
-    <item android:id="@+id/volumeMedium" android:title="Medium volume"
-        android:orderInCategory="100" android:showAsAction="never" />
-
-    <item android:id="@+id/volumeHigh" android:title="High volume"
+    <item android:id="@+id/volumeHighest" android:title="Highest"
         android:orderInCategory="100" android:showAsAction="never" />
 
     <!--
