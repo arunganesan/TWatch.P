@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.util.Log;
 
 /**
  * Created by Arun on 11/21/2014.
@@ -91,6 +92,7 @@ public class Player {
         AudioManager am = (AudioManager) myActivity.getSystemService(Context.AUDIO_SERVICE);
         int maxVol = am.getStreamMaxVolume(am.STREAM_MUSIC);
         int setVolume = (int) (((float)maxVol) * softwareVolume);
+        Log.v(TAG, "Setting volume to " + setVolume + " out of " + maxVol);
         am.setStreamVolume(am.STREAM_MUSIC, setVolume, 0);
     }
 
@@ -132,10 +134,7 @@ public class Player {
             for (int i = 0; i < buffsize; i++) {
                 if (inChirp) {
                     if (silenceOverride) samples[i] = 0;
-                    else {
-                        if (softwareVolume == 1.0) samples[i] = sound[chirpCount];
-                        else samples[i] = (short) (softwareVolume * sound[chirpCount]);
-                    }
+                    else samples[i] = sound[chirpCount];
 
                     chirpCount++; // Always increment, so it stays in sync
 
@@ -147,8 +146,7 @@ public class Player {
                 } else if (inAligner) {
                     if (silenceOverride) samples[i] = 0;
                     else {
-                        if (softwareVolume == 1.0) samples[i] = ALIGNCHIRP[chirpCount];
-                        else samples[i] = (short) (softwareVolume * ALIGNCHIRP[chirpCount]);
+                        samples[i] = ALIGNCHIRP[chirpCount];
                     }
 
                     chirpCount++; // Always increment, so it stays in sync
