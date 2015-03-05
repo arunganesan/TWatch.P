@@ -38,7 +38,7 @@ public class SpiralBuffer extends TapBuffer {
             if (array.length > max_added) max_added = array.length;
 
             if ((tail-head) > buffer.length) {
-                Log.e(TAG, name + " is violating circular buffer assumptions");
+                //Log.e(TAG, name + " is violating circular buffer assumptions");
             }
 
             tail += saved;
@@ -54,7 +54,7 @@ public class SpiralBuffer extends TapBuffer {
             return tail - head;
         } else if (action.equals("reset")) {
             dirty = false;
-            Log.v(TAG, "Cleaning " + name + ". Head is " + head + " tail is " + tail + " and size is " + (tail - head) + " max size was " + max_size + " and max added was " + max_added);
+            //Log.v(TAG, "Cleaning " + name + ". Head is " + head + " tail is " + tail + " and size is " + (tail - head) + " max size was " + max_size + " and max added was " + max_added);
             head = 0;
             tail = 0;
             max_size = 0;
@@ -65,7 +65,7 @@ public class SpiralBuffer extends TapBuffer {
         if (action.equals("add") || action.equals("get")) {
             num_actions++;
             if (num_actions % 10 == 0) {
-                Log.v(TAG, name + ": Head is " + head + " tail is " + tail + " and size is " + (tail - head));
+                //Log.v(TAG, name + ": Head is " + head + " tail is " + tail + " and size is " + (tail - head));
                 num_actions = 0;
             }
         }

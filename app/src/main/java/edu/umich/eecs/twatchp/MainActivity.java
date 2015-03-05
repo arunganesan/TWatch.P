@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -88,27 +89,20 @@ public class MainActivity extends Activity {
             }
         });
 
-        phoneVolume = (SeekBar) findViewById(R.id.seekBar);
-        phoneVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progress;
-
+        ((ImageView)findViewById(R.id.tapButton)).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.v(TAG, "Progress changed");
-                this.progress = progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                Log.v(TAG, "Starting");
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                Log.v(TAG, "Done, letting go - " + progress + "/" + seekBar.getMax());
+            public void onClick(View view) {
+                bsocket.tellWatch(SocketThread.DO_TAP);
             }
         });
 
+
+        ((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bsocket.tellWatch(SocketThread.DO_DRAW);
+            }
+        });
     }
 
     public void initializeTWatch() {
