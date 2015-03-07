@@ -100,6 +100,8 @@ public class Player {
         // Set up audiotrack, start playing on loop until time to stop
 
         buffsize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        //buffsize = 22304;
+        //buffsize + 8000;
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, buffsize, AudioTrack.MODE_STREAM);
         audioTrack.play();
         isRunning = true;
@@ -129,7 +131,10 @@ public class Player {
         boolean inAligner = false;
         int alignerCount = 0;
 
+
+
         while (isRunning) {
+            long start = System.nanoTime();
             for (int i = 0; i < buffsize; i++) {
                 if (inChirp) {
                     // MAKE SOUND
@@ -183,6 +188,10 @@ public class Player {
                     }
                 }
             }
+
+            long end = System.nanoTime();
+            double elapsed_in_millis = (end - start)/1000000.0;
+            Log.v(TAG, "Took " + elapsed_in_millis + " to fill a " + ((double)buffsize)/44100.0*1000 + " milli buffer (size = " + buffsize + ")");
 
             audioTrack.write(samples, 0, buffsize);
         }
