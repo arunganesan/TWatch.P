@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 startAutotune();
-                autotuneButton.setAlpha(0);
+                //autotuneButton.setAlpha(0);
                 //rl.removeView(autotuneButton);
             }
         });
