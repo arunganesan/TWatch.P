@@ -243,7 +243,7 @@ public class MainActivity extends Activity {
         if (btTap.isTapOpen() == false) {
             addInfo("~~running~~");
             player.turnOnSound();
-            player.playAligner();
+            //player.playAligner();
             fsaver.startNewFile();
             btTap.openTap();
             recTap.openTap();
