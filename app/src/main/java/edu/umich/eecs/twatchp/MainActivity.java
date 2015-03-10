@@ -268,9 +268,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        showAutotuneStep();
+        //showAutotuneStep();
         //startAutotune();
-        //doneAutotune(true);
+        doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -361,6 +361,12 @@ public class MainActivity extends Activity {
             case R.id.volumeMedium: player.setSoftwareVolume(0.6); break;
             case R.id.volumeHigh: player.setSoftwareVolume(0.8); break;
             case R.id.volumeHighest: player.setSoftwareVolume(1); break;
+            case R.id.volumeSilence: player.setSoftwareVolume(0); break;
+            case R.id.chirpSound: player.changeSound(Player.CHIRP); break;
+            case R.id.whitenoiseSound: player.changeSound(Player.WN); break;
+            case R.id.highChirpSound: player.changeSound(Player.CHIRPHIGH); break;
+            case R.id.highWhitenoiseSound: player.changeSound(Player.WNHIGH); break;
+
         }
 
 
