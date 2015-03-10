@@ -122,7 +122,7 @@ public class FileSaver extends Thread {
 
                         if (saved_count >= 9) {
                             saved_count = 0;
-                            mainActivity.startAutotune();;
+                            //mainActivity.startAutotune();;
                         }
 
                     } catch (Exception e) {

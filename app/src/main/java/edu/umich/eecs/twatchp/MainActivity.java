@@ -216,6 +216,7 @@ public class MainActivity extends Activity {
     public void startAutotune () {
         Log.v(TAG, "Starting auto tuner");
         player.changeSound(Player.CHIRP);
+        player.setSoftwareVolume(0.2);
         bsocket.tellWatch(SocketThread.START_AUTOTUNE);
         player.turnOnSound();
         autotuner.start();
@@ -229,6 +230,7 @@ public class MainActivity extends Activity {
             player.changeSound(Player.WN);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
+            player.setSoftwareVolume(0.4);
             ready();
         } else {
             addInfo("Autotuning failed :(");
@@ -260,9 +262,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        //showAutotuneStep();
+        showAutotuneStep();
         //startAutotune();
-        doneAutotune(true);
+        //doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -285,6 +287,11 @@ public class MainActivity extends Activity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
+        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
+        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
+
+
 
         if (!sp.contains("watch address")) {
             // XXX: This is a hack solution for now
