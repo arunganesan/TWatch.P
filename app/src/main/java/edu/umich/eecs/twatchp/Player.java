@@ -27,13 +27,11 @@ public class Player {
 
     public short [] sound = CHIRP;
 
-
-
     int buffsize, spaceCounter;
     final static String TAG = "Player";
     public AudioTrack audioTrack;
     boolean isRunning = false, silenceOverride = false;
-    int chirpPlayCount = 0, MAXCHIRPS = 100000;
+    int chirpPlayCount = 0;
     int tweakBy = 0;
 
     boolean scheduleAligner = false, scheduleTurnOn = false;
@@ -102,6 +100,8 @@ public class Player {
         // Set up audiotrack, start playing on loop until time to stop
 
         buffsize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        //buffsize = 22304;
+        //buffsize + 8000;
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, buffsize, AudioTrack.MODE_STREAM);
         audioTrack.play();
         isRunning = true;
@@ -129,55 +129,69 @@ public class Player {
         boolean inChirp = true;
 
         boolean inAligner = false;
+        int alignerCount = 0;
+
+
 
         while (isRunning) {
+            long start = System.nanoTime();
             for (int i = 0; i < buffsize; i++) {
                 if (inChirp) {
+                    // MAKE SOUND
                     if (silenceOverride) samples[i] = 0;
-                    else samples[i] = sound[chirpCount];
+                    else if (inAligner) {
+                        samples[i] = ALIGNCHIRP[alignerCount];
+                        alignerCount++;
+                        if (alignerCount >= ALIGNCHIRP.length) {
+                            alignerCount = 0;
+                            inAligner = false;
+                        }
+                    } else samples[i] = sound[chirpCount];
 
-                    chirpCount++; // Always increment, so it stays in sync
 
+                    // ADD COUNTER
+                    chirpCount++;
+                    if (chirpCount >= sound.length) inChirp = false;
+
+                    // POSSIBLE CHANGE MODE
                     if (chirpCount >= sound.length) { // The last one, next would overflow
                         chirpPlayCount ++;
-                        inChirp = false;
                         chirpCount = 0;
-                    }
-                } else if (inAligner) {
-                    if (silenceOverride) samples[i] = 0;
-                    else {
-                        samples[i] = ALIGNCHIRP[chirpCount];
-                    }
-
-                    chirpCount++; // Always increment, so it stays in sync
-
-                    if (chirpCount >= ALIGNCHIRP.length) { // The last one, next would overflow
-                        chirpPlayCount ++;
-                        inChirp = false;
-                        chirpCount = 0;
-                        inAligner = false;
                     }
                 } else {
+                    // MAKE SOUND
+                    if (inAligner) {
+                        samples[i] = ALIGNCHIRP[alignerCount];
+                        alignerCount++;
+                        if (alignerCount >= ALIGNCHIRP.length) {
+                            alignerCount = 0;
+                            inAligner = false;
+                        }
+                    } else samples[i] = 0;
+
+                    // ADD COUNTER
                     spaceCounter--;
-                    samples[i] = 0;
+                    if (spaceCounter <= 0) inChirp = true;
 
+                    // POSSIBLE CHANGE MODE
                     if (spaceCounter <= 0) {
-                        if (chirpPlayCount < MAXCHIRPS)  {
-                            if (scheduleTurnOn) {
-                                silenceOverride = false;
-                                scheduleTurnOn = false;
-                            }
+                        if (scheduleTurnOn) {
+                            silenceOverride = false;
+                            scheduleTurnOn = false;
+                        }
 
-                            if (scheduleAligner) {
-                                inAligner = true;
-                                scheduleAligner = false;
-                            }
-                            else inChirp = true;
+                        if (scheduleAligner) {
+                            inAligner = true;
+                            scheduleAligner = false;
                         }
                         resetSpace();
                     }
                 }
             }
+
+            long end = System.nanoTime();
+            double elapsed_in_millis = (end - start)/1000000.0;
+            Log.v(TAG, "Took " + elapsed_in_millis + " to fill a " + ((double)buffsize)/44100.0*1000 + " milli buffer (size = " + buffsize + ")");
 
             audioTrack.write(samples, 0, buffsize);
         }

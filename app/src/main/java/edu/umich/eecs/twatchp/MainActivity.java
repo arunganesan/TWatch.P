@@ -70,6 +70,7 @@ public class MainActivity extends Activity {
          */
 
         setupBluetooth();
+        //fakeSetBTSocket();
     }
 
 
@@ -84,7 +85,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 startAutotune();
-                autotuneButton.setAlpha(0);
+                //autotuneButton.setAlpha(0);
                 //rl.removeView(autotuneButton);
             }
         });
@@ -254,6 +255,11 @@ public class MainActivity extends Activity {
 
     }
 
+
+    public void fakeSetBTSocket () {
+        initializeTWatch();
+        //doneAutotune(true);
+    }
 
     public void setBTSocket (BluetoothSocket socket) {
         // Even if another one exists, we update it
