@@ -228,7 +228,7 @@ public class MainActivity extends Activity {
         player.turnOffSound();
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
-            player.changeSound(Player.WN);
+            player.changeSound(Player.CHIRP);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
             player.setSoftwareVolume(0.4);
@@ -243,7 +243,7 @@ public class MainActivity extends Activity {
         if (btTap.isTapOpen() == false) {
             addInfo("~~running~~");
             player.turnOnSound();
-            //player.playAligner();
+            player.playAligner();
             fsaver.startNewFile();
             btTap.openTap();
             recTap.openTap();
@@ -268,9 +268,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        //showAutotuneStep();
+        showAutotuneStep();
         //startAutotune();
-        doneAutotune(true);
+        //doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -294,8 +294,8 @@ public class MainActivity extends Activity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
-        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
+        sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
+        //sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
 
 
 

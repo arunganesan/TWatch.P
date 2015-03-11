@@ -52,10 +52,18 @@ class SocketThread extends Thread {
         while (true) {
             try {
                 // Read from the InputStream
-                bytes = mmInStream.read(buffer);
-                //Log.v(TAG, "Received " + bytes);
-                if (monitor) myactivity.reportReceipt(bytes);
-                if (tap.isTapOpen()) tap.addByteArrayLen(buffer, bytes);
+
+                int bytesAvailable = mmInStream.available();
+                if (bytesAvailable > 0) {
+                    byte[] curBuf = new byte[bytesAvailable];
+                    Log.v(TAG, "Blocking for read");
+                    long start = System.currentTimeMillis();
+                    bytes = mmInStream.read(curBuf);
+                    long end = System.currentTimeMillis();
+                    Log.v(TAG, "Received " + bytes + " in " + (end - start) + "ms");
+                    if (monitor) myactivity.reportReceipt(bytes);
+                    if (tap.isTapOpen()) tap.addByteArrayLen(curBuf, bytes);
+                }
             } catch (IOException e) {
                 break;
             }
