@@ -296,8 +296,7 @@ public class MainActivity extends Activity {
 
         //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
         sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
-
-
+        //sp.edit().putString("watch address", "FC:C7:34:0E:23:7A").commit();
 
         if (!sp.contains("watch address")) {
             // XXX: This is a hack solution for now
