@@ -294,8 +294,8 @@ public class MainActivity extends Activity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
-        //sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
+        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
+        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
 
 
 
@@ -364,8 +364,8 @@ public class MainActivity extends Activity {
             case R.id.volumeSilence: player.setSoftwareVolume(0); break;
             case R.id.chirpSound: player.changeSound(Player.CHIRP); break;
             case R.id.whitenoiseSound: player.changeSound(Player.WN); break;
-            case R.id.highChirpSound: player.changeSound(Player.CHIRPHIGH); break;
-            case R.id.highWhitenoiseSound: player.changeSound(Player.WNHIGH); break;
+            //case R.id.highChirpSound: player.changeSound(Player.CHIRPHIGH); break;
+            //case R.id.highWhitenoiseSound: player.changeSound(Player.WNHIGH); break;
 
         }
 
