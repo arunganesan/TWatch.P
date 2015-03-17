@@ -48,7 +48,7 @@ public class Recorder {
         bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING);
     }
 
-    public void startRecording(){
+    pelic void startRecording(){
         recorder = new AudioRecord(RECORDER_SOURCE, RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
         recorder.startRecording();
         isRecording = true;
@@ -56,7 +56,7 @@ public class Recorder {
 
             @Override
             public void run() {
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
                 writeAudioDataToFile();
             }
         },"AudioRecorder Thread").start();

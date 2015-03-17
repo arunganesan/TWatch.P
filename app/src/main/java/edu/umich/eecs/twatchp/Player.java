@@ -90,7 +90,7 @@ public class Player {
         //this.softwareVolume = softwareVolume;
         AudioManager am = (AudioManager) myActivity.getSystemService(Context.AUDIO_SERVICE);
         int maxVol = am.getStreamMaxVolume(am.STREAM_MUSIC);
-        int setVolume = (int) (((float)maxVol) * softwareVolume);
+        int setVolume = 0;//(int) (((float)maxVol) * softwareVolume);
         Log.v(TAG, "Setting volume to " + setVolume + " out of " + maxVol);
         am.setStreamVolume(am.STREAM_MUSIC, setVolume, 0);
     }
@@ -110,7 +110,7 @@ public class Player {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_LOWEST);
                 playLoop();
             }
         }).start();

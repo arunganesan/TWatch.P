@@ -268,9 +268,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        showAutotuneStep();
+        //showAutotuneStep();
         //startAutotune();
-        //doneAutotune(true);
+        doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
