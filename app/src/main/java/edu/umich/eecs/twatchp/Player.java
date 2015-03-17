@@ -39,8 +39,7 @@ public class Player {
 
     //int SPACE = (int)(CHIRP.length * 3);
     double softwareVolume = 0;
-    int SPACE; // = (int)(44100*0.1);
-    //int SPACE = (int)(44100*0.5);
+    int SPACE;
 
     MainActivity myActivity;
 
