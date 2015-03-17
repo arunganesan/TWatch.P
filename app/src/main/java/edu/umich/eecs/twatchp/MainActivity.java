@@ -236,7 +236,7 @@ public class MainActivity extends Activity {
         player.turnOffSound();
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
-            player.changeSound(Player.CHIRP);
+            player.changeSound(Player.WN);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
             player.setSoftwareVolume(0.4);
@@ -276,9 +276,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        //showAutotuneStep();
+        showAutotuneStep();
         //startAutotune();
-        doneAutotune(true);
+        //doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
