@@ -246,17 +246,22 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void reportReceipt (int numbytes) {
-        if (numbytes == 0) return;
-        if (btTap.isTapOpen() == false) {
-            addInfo("~~running~~");
-            player.turnOnSound();
-            player.playAligner();
-            fsaver.startNewFile();
-            btTap.openTap();
-            recTap.openTap();
-        }
+    public void startChirping () {
+        player.turnOnSound();
+        player.playAligner();
+        fsaver.startNewFile();
+        recTap.openTap();
     }
+
+    public void stopChirping() {
+        player.turnOffSound();
+        fsaver.stopRecording();
+    }
+
+    public void doneFileReceive () {
+        fsaver.doneBTStream();
+    }
+
 
     public void ready () {
         addInfo("Ready!", fadeInButton);

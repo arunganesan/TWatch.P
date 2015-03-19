@@ -60,29 +60,27 @@ public class FileSaver extends Thread {
                 this.sleep(150);
             } catch (Exception e) { }
             else {
-                if (btTap.isTapOpen()) {
+                if (btTap.isTapOpen() || btTap.howMany() != 0) {
                     if (btTap.howMany() != 0) {
-                        btTime = now;
                         int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
-                        //for (int i = 0; i < got; i++) btData.add(tmpBuffer[i]);
                         try {
                             watch_tmp.write(tmpBuffer, 0, got);
                         } catch (Exception e) {}
-
-                    } else if (now - btTime > TIMEOUT) btTimedout = true;
+                    }
                 }
 
-                if (recTap.isTapOpen() && recTap.howMany() != 0) {
-                    int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
-                    //for (int i = 0; i < got; i++) recData.add(tmpBuffer[i]);
-                    try {
-                        phone_tmp.write(tmpBuffer, 0, got);
-                    } catch (Exception e) {}
+                if (recTap.isTapOpen() || recTap.howMany() != 0) {
+                    if (recTap.howMany() != 0) {
+                        int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
+                        //for (int i = 0; i < got; i++) recData.add(tmpBuffer[i]);
+                        try {
+                            phone_tmp.write(tmpBuffer, 0, got);
+                        } catch (Exception e) {
+                        }
+                    }
                 }
 
-                if (btTimedout) {
-                    btTap.closeTap();
-                    recTap.closeTap();
+                if (!recTap.isTapOpen() && !btTap.isTapOpen()) {
                     try {
                         phone_tmp.close();
                         watch_tmp.close();
@@ -131,6 +129,14 @@ public class FileSaver extends Thread {
                 }
             }
         }
+    }
+
+    public void doneBTStream () {
+        btTap.closeTap();
+    }
+
+    public void stopRecording () {
+        recTap.closeTap();
     }
 
     public void startNewFile () {
