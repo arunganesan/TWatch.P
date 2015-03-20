@@ -236,7 +236,7 @@ public class MainActivity extends Activity {
         player.turnOffSound();
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
-            player.changeSound(Player.WN);
+            player.changeSound(Player.CHIRP);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
             player.setSoftwareVolume(0.4);
@@ -370,8 +370,6 @@ public class MainActivity extends Activity {
             case R.id.volumeHigh: player.setSoftwareVolume(0.8); break;
             case R.id.volumeHighest: player.setSoftwareVolume(1); break;
             case R.id.volumeSilence: player.setSoftwareVolume(0); break;
-            case R.id.chirpSound: player.changeSound(Player.CHIRP); break;
-            case R.id.whitenoiseSound: player.changeSound(Player.WN); break;
             //case R.id.highChirpSound: player.changeSound(Player.CHIRPHIGH); break;
             //case R.id.highWhitenoiseSound: player.changeSound(Player.WNHIGH); break;
 
