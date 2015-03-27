@@ -185,7 +185,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 ValueAnimator fadeAnim = ObjectAnimator.ofFloat(statusText, "alpha", 1f, 0f);
-                fadeAnim.setDuration(250);
+                fadeAnim.setDuration(500);
                 fadeAnim.addListener(doneFadeOut);
                 fadeAnim.start();
 
@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
         public void onAnimationEnd (Animator animation) {
             statusText.setText(nextMessage);
             ValueAnimator fadeAnim = ObjectAnimator.ofFloat(statusText, "alpha", 0f, 1f);
-            fadeAnim.setDuration(250);
+            fadeAnim.setDuration(500);
             fadeAnim.start();
         }
     };
@@ -253,7 +253,7 @@ public class MainActivity extends Activity {
         recTap.openTap();
         btTap.openTap();
 
-        addInfo("~~~");
+        addInfo("Beeping...");
     }
 
     public void stopChirping() {

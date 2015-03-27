@@ -102,8 +102,7 @@ public class FileSaver extends Thread {
 
                     Log.v(TAG, "Tap size is bt=" + btTap.howMany() + " rec=" + recTap.howMany());
                     Log.v(TAG, "Saved data under name " + now);
-                    mainActivity.addInfo("Done (saved)");
-
+                    mainActivity.addInfo("Done!");
 
                     btTap.emptyBuffer();
                     recTap.emptyBuffer();

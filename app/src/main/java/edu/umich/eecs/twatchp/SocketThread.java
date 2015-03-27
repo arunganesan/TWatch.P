@@ -105,6 +105,8 @@ class SocketThread extends Thread {
                                 saveMode = true;
 
                                 Log.v(TAG, "Receiving file");
+                                myactivity.addInfo("Transfering to phone...");
+
 
                                 if (bytes - i < 8) Log.e(TAG, "Missing length! Total bytes size is " + bytes + " and we are at " + i);
                                 sizeBuffer.add(curBuf[i+1]);
