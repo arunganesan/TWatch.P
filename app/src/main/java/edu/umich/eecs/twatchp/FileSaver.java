@@ -62,30 +62,27 @@ public class FileSaver extends Thread {
             else {
                 //Log.v(TAG, "Opening taps in FSaver");
                 if (btTap.isTapOpen() && btTap.howMany() != 0) {
-                    if (btTap.howMany() != 0) {
-                        int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
-                        try {
-                            watch_tmp.write(tmpBuffer, 0, got);
-                        } catch (Exception e) {}
-                    }
+                    int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
+                    try {
+                        watch_tmp.write(tmpBuffer, 0, got);
+                    } catch (Exception e) {}
                 }
 
                 if (recTap.isTapOpen() && recTap.howMany() != 0) {
-                    if (recTap.howMany() != 0) {
-                        int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
-                        //for (int i = 0; i < got; i++) recData.add(tmpBuffer[i]);
-                        try {
-                            phone_tmp.write(tmpBuffer, 0, got);
-                        } catch (Exception e) {
-                        }
-                    }
+                    int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
+                    //for (int i = 0; i < got; i++) recData.add(tmpBuffer[i]);
+                    try {
+                        phone_tmp.write(tmpBuffer, 0, got);
+                    } catch (Exception e) {}
                 }
 
+                if (closeRECwhenDone && recTap.howMany() == 0) {
+                    recTap.closeTap();
+                }
 
                 if ((closeBTwhenDone && btTap.howMany() == 0) && (closeRECwhenDone && recTap.howMany() == 0)) {
                     btTap.closeTap();
                     recTap.closeTap();
-
                     try {
                         phone_tmp.close();
                         watch_tmp.close();
@@ -131,6 +128,9 @@ public class FileSaver extends Thread {
                     } catch (Exception e) {
 
                     }
+
+                    closeBTwhenDone = false;
+                    closeRECwhenDone = false;
                 }
             }
         }

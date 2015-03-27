@@ -106,7 +106,7 @@ class SocketThread extends Thread {
 
                                 Log.v(TAG, "Receiving file");
 
-                                if (bytes - i < 8) Log.e(TAG, "Missing length!");
+                                if (bytes - i < 8) Log.e(TAG, "Missing length! Total bytes size is " + bytes + " and we are at " + i);
                                 sizeBuffer.add(curBuf[i+1]);
                                 sizeBuffer.add(curBuf[i+2]);
                                 sizeBuffer.add(curBuf[i+3]);
@@ -119,28 +119,32 @@ class SocketThread extends Thread {
                                 total_received = 0;
                                 Log.v(TAG, "Got file size length. Waiting to transfer total: " + total_size);
 
-                                leftover = new byte [bytes - i - 8];
-                                System.arraycopy(curBuf, i+8, leftover, 0, bytes -i - 8);
                                 break;
+
+                                //if ((i+1)+8 == bytes) break;
+                                //else {
+                                //    leftover = new byte[bytes-(i+1)-8];
+                                //    System.arraycopy(curBuf, i+8+1, leftover, 0, bytes-(i+1)-8);
+                                //    break;
+                                //}
                             }
                         }
-                    }
-
-                    if (saveMode) {
+                    } else if (saveMode) {
                         if (total_size > total_received) {
-                            if (leftover != null || leftover.length != 0) {
-                                tap.addByteArray(leftover);
-                                total_received += leftover.length;
-                            } else {
+                            //if (leftover != null && leftover.length != 0) {
+                            //    tap.addByteArray(leftover);
+                            //    total_received += leftover.length;
+                            //    leftover = null;
+                            //} else {
                                 tap.addByteArrayLen(curBuf, bytes);
                                 total_received += bytes;
-                            }
+                            //}
 
                             //Log.v(TAG, "So far got " + total_received);
                         }
 
                         if (total_received >= total_size) {
-                            Log.v(TAG, "Successfully got the file!");
+                            Log.v(TAG, "Successfully got the file! Total received " + total_received);
                             myactivity.doneFileReceive();
                             saveMode = false;
                         }

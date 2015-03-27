@@ -247,10 +247,13 @@ public class MainActivity extends Activity {
     }
 
     public void startChirping () {
+        fsaver.startNewFile();
         player.turnOnSound();
         player.playAligner();
-        fsaver.startNewFile();
         recTap.openTap();
+        btTap.openTap();
+
+        addInfo("~~~");
     }
 
     public void stopChirping() {
