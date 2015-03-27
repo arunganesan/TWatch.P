@@ -28,9 +28,9 @@ public class FileSaver extends Thread {
     String AUDIO_RECORDER_PHONE_TMP;
     String AUDIO_RECORDER_WATCH_TMP;
 
-    long btTime, now;
-    long TIMEOUT = 1000;
-    boolean btTimedout;
+    long now;
+
+    boolean closeBTwhenDone = false, closeRECwhenDone = false;
 
     public FileSaver (MainActivity mainActivity, TapBuffer btTap, TapBuffer  recTap) {
         this.mainActivity = mainActivity;
@@ -49,18 +49,19 @@ public class FileSaver extends Thread {
     }
 
     public void run () {
-        btTime = System.currentTimeMillis();
-        btTimedout = false;
         Log.v(TAG, "Running filesaver in thread " + currentThread().getName());
 
         while (running) {
             now = System.currentTimeMillis();
-            if (!btTap.isTapOpen() && !recTap.isTapOpen()) try {
-                //Log.v(TAG, "Both taps closed, sleeping thread " + currentThread().getName());
-                this.sleep(150);
-            } catch (Exception e) { }
+            if (!btTap.isTapOpen() && !recTap.isTapOpen())
+                try {
+                    //Log.v(TAG, "Both taps closed, sleeping thread " + currentThread().getName());
+                    this.sleep(150);
+                } catch (Exception e)
+                { }
             else {
-                if (btTap.isTapOpen() || btTap.howMany() != 0) {
+                //Log.v(TAG, "Opening taps in FSaver");
+                if (btTap.isTapOpen() && btTap.howMany() != 0) {
                     if (btTap.howMany() != 0) {
                         int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
                         try {
@@ -69,7 +70,7 @@ public class FileSaver extends Thread {
                     }
                 }
 
-                if (recTap.isTapOpen() || recTap.howMany() != 0) {
+                if (recTap.isTapOpen() && recTap.howMany() != 0) {
                     if (recTap.howMany() != 0) {
                         int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
                         //for (int i = 0; i < got; i++) recData.add(tmpBuffer[i]);
@@ -80,7 +81,11 @@ public class FileSaver extends Thread {
                     }
                 }
 
-                if (!recTap.isTapOpen() && !btTap.isTapOpen()) {
+
+                if ((closeBTwhenDone && btTap.howMany() == 0) && (closeRECwhenDone && recTap.howMany() == 0)) {
+                    btTap.closeTap();
+                    recTap.closeTap();
+
                     try {
                         phone_tmp.close();
                         watch_tmp.close();
@@ -132,11 +137,11 @@ public class FileSaver extends Thread {
     }
 
     public void doneBTStream () {
-        btTap.closeTap();
+        closeBTwhenDone = true;
     }
 
     public void stopRecording () {
-        recTap.closeTap();
+        closeRECwhenDone = true;
     }
 
     public void startNewFile () {
@@ -156,8 +161,6 @@ public class FileSaver extends Thread {
         //recData.clear();
         //btData.trimToSize();
         //recData.trimToSize();
-        btTime = System.currentTimeMillis();
-        btTimedout = false;
     }
 
     public void shutdown () {

@@ -81,6 +81,8 @@ class SocketThread extends Thread {
 
         Log.v(TAG, "Started socket thread");
         // Keep listening to the InputStream until an exception occurs
+
+
         while (true) {
             try {
                 // Read from the InputStream
@@ -102,6 +104,8 @@ class SocketThread extends Thread {
                                 sizeBuffer.clear();
                                 saveMode = true;
 
+                                Log.v(TAG, "Receiving file");
+
                                 if (bytes - i < 8) Log.e(TAG, "Missing length!");
                                 sizeBuffer.add(curBuf[i+1]);
                                 sizeBuffer.add(curBuf[i+2]);
@@ -112,6 +116,8 @@ class SocketThread extends Thread {
                                 sizeBuffer.add(curBuf[i+7]);
                                 sizeBuffer.add(curBuf[i+8]);
                                 total_size = bytesToLong(primArray(sizeBuffer));
+                                total_received = 0;
+                                Log.v(TAG, "Got file size length. Waiting to transfer total: " + total_size);
 
                                 leftover = new byte [bytes - i - 8];
                                 System.arraycopy(curBuf, i+8, leftover, 0, bytes -i - 8);
@@ -122,9 +128,18 @@ class SocketThread extends Thread {
 
                     if (saveMode) {
                         if (total_size > total_received) {
-                            if (leftover != null) tap.addByteArray(leftover);
-                            else tap.addByteArrayLen(curBuf, bytes);
-                        } else {
+                            if (leftover != null || leftover.length != 0) {
+                                tap.addByteArray(leftover);
+                                total_received += leftover.length;
+                            } else {
+                                tap.addByteArrayLen(curBuf, bytes);
+                                total_received += bytes;
+                            }
+
+                            //Log.v(TAG, "So far got " + total_received);
+                        }
+
+                        if (total_received >= total_size) {
                             Log.v(TAG, "Successfully got the file!");
                             myactivity.doneFileReceive();
                             saveMode = false;

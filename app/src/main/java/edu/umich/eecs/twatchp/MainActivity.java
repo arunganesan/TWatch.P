@@ -116,7 +116,7 @@ public class MainActivity extends Activity {
 
     public void initializeTWatch() {
         player = new Player(this);
-        player.setSoftwareVolume(0.4);
+        player.setSoftwareVolume(0.0); // XXX CHANGE
         player.setSpace((int)(0.1*44100));
         player.turnOffSound();
         player.startPlaying();
@@ -239,7 +239,7 @@ public class MainActivity extends Activity {
             player.changeSound(Player.WN);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
-            player.setSoftwareVolume(0.4);
+            player.setSoftwareVolume(0.0); /// XXX CHANGE
             ready();
         } else {
             addInfo("Autotuning failed :(");
@@ -281,9 +281,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        showAutotuneStep();
+        //showAutotuneStep();
         //startAutotune();
-        //doneAutotune(true);
+        doneAutotune(true); // XXX: CHANGE TO ENABLE AUTO TUNE
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
