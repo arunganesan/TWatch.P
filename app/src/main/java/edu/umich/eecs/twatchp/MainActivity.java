@@ -15,16 +15,20 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.MotionEvent;
+
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -98,18 +102,25 @@ public class MainActivity extends Activity {
         });
 
 
-        ((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bsocket.tellWatch(SocketThread.DO_DRAW);
-            }
-        });
+
+        //((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View view) {
+        //        bsocket.tellWatch(SocketThread.DO_DRAW);
+        //    }
+        //});
 
 
-        ((Button)findViewById(R.id.tweak)).setOnClickListener( new View.OnClickListener() {
+        ((ImageView)findViewById(R.id.drawButton)).setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                player.tweak(100);
+            public boolean onTouch(View v, MotionEvent e) {
+                Log.v(TAG, "Got touch event: " + e.getAction());
+
+                if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_DOWN) {
+                    bsocket.tellWatch(SocketThread.DO_DRAW);
+                }
+
+                return true;
             }
         });
     }
@@ -239,7 +250,7 @@ public class MainActivity extends Activity {
             player.changeSound(Player.WN);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
-            player.setSoftwareVolume(0.0); /// XXX CHANGE
+            player.setSoftwareVolume(0.1); /// XXX CHANGE
             ready();
         } else {
             addInfo("Autotuning failed :(");

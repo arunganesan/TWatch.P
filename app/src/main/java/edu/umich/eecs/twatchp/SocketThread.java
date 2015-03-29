@@ -140,6 +140,7 @@ class SocketThread extends Thread {
                             //} else {
                                 tap.addByteArrayLen(curBuf, bytes);
                                 total_received += bytes;
+                                myactivity.addInfo("Transfering to phone... " + total_received + "/" + total_size, 0);
                             //}
 
                             //Log.v(TAG, "So far got " + total_received);
