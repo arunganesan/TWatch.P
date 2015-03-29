@@ -2,6 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
 
+    <item android:id="@+id/initiateAutotune" android:title="Auto tune"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/clearLast" android:title="Clear last"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/cutOff" android:title="Cut off"
+        android:orderInCategory="100" android:showAsAction="never" />
+
     <item android:id="@+id/volumeSilence" android:title="Silence"
         android:orderInCategory="100" android:showAsAction="never" />
 

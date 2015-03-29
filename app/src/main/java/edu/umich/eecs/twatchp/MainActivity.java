@@ -108,15 +108,17 @@ public class MainActivity extends Activity {
             }
         });
 
-        //((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        bsocket.tellWatch(SocketThread.DO_DRAW);
-        //    }
-        //});
+        ((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bsocket.tellWatch(SocketThread.DO_DRAW);
+            }
+        });
 
 
+        /*
         ((ImageView)findViewById(R.id.drawButton)).setOnTouchListener(new View.OnTouchListener() {
+
             @Override
             public boolean onTouch(View v, MotionEvent e) {
                 Log.v(TAG, "Got touch event: " + e.getAction());
@@ -128,6 +130,7 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+        */
     }
 
     public void initializeTWatch() {

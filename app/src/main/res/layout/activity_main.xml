@@ -18,43 +18,14 @@
         android:layout_centerHorizontal="true" />
 
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Initiate Auto Tune"
-        android:id="@+id/autotuneButton"
-        android:background="#ffcacaca"
-        android:layout_below="@+id/statusText"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Got file"
-        android:id="@+id/gotFileButton"
-        android:background="#ffcacaca"
-        android:layout_below="@+id/statusText"
-        android:layout_marginTop="40dp" />
-
-
-
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tapButton"
-        android:src="@drawable/tap"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/drawButton" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:id="@+id/drawButton"
-        android:src="@drawable/draw"
+        android:src="@drawable/staples_easy_button"
         android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/autotuneButton"
-        android:layout_marginStart="112dp" />
+        android:layout_centerHorizontal="true"
+        />
 
 
 </RelativeLayout>
