@@ -132,8 +132,8 @@ public class MainActivity extends Activity {
 
     public void initializeTWatch() {
         player = new Player(this);
-        player.setSoftwareVolume(0.0); // XXX CHANGE
-        player.setSpace((int)(0.1*44100));
+        player.setSoftwareVolume(0.4);
+        player.setSpace((int)(0.05*44100));
         player.turnOffSound();
         player.startPlaying();
 
@@ -252,10 +252,10 @@ public class MainActivity extends Activity {
         player.turnOffSound();
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
-            player.changeSound(Player.WN);
+            player.changeSound(Player.CHIRP);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
-            player.setSoftwareVolume(0.1); /// XXX CHANGE
+            player.setSoftwareVolume(0.4);
             ready();
         } else {
             addInfo("Autotuning failed :(");
@@ -300,9 +300,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        //showAutotuneStep();
+        showAutotuneStep();
         //startAutotune();
-        doneAutotune(true); // XXX: CHANGE TO ENABLE AUTO TUNE
+        //doneAutotune(true);
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -328,6 +328,7 @@ public class MainActivity extends Activity {
 
         //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
         sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
+
 
 
         if (!sp.contains("watch address")) {
@@ -393,8 +394,6 @@ public class MainActivity extends Activity {
             case R.id.volumeHigh: player.setSoftwareVolume(0.8); break;
             case R.id.volumeHighest: player.setSoftwareVolume(1); break;
             case R.id.volumeSilence: player.setSoftwareVolume(0); break;
-            case R.id.chirpSound: player.changeSound(Player.CHIRP); break;
-            case R.id.whitenoiseSound: player.changeSound(Player.WN); break;
             //case R.id.highChirpSound: player.changeSound(Player.CHIRPHIGH); break;
             //case R.id.highWhitenoiseSound: player.changeSound(Player.WNHIGH); break;
 
