@@ -101,7 +101,12 @@ public class MainActivity extends Activity {
             }
         });
 
-
+        ((Button)findViewById(R.id.gotFileButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View view) {
+                doneFileReceive();
+            }
+        });
 
         //((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
         //    @Override
@@ -323,7 +328,6 @@ public class MainActivity extends Activity {
 
         //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
         sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
-
 
 
         if (!sp.contains("watch address")) {

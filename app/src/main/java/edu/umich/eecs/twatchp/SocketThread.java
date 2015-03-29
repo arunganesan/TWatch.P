@@ -82,16 +82,16 @@ class SocketThread extends Thread {
         Log.v(TAG, "Started socket thread");
         // Keep listening to the InputStream until an exception occurs
 
-
         while (true) {
             try {
                 // Read from the InputStream
 
-
                 int bytesAvailable = mmInStream.available();
                 if (bytesAvailable > 0) {
                     byte[] curBuf = new byte[bytesAvailable];
+
                     byte [] leftover = null;
+
                     bytes = mmInStream.read(curBuf);
 
                     if (!saveMode) {
@@ -156,6 +156,8 @@ class SocketThread extends Thread {
 
                 }
             } catch (IOException e) {
+                Log.e(TAG, "Exception");
+                e.printStackTrace();
                 break;
             }
         }
