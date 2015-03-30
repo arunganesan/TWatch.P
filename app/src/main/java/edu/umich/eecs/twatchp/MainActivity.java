@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
     SharedPreferences sp;
     BluetoothAdapter mBluetoothAdapter;
     SocketThread bsocket;
-    Button autotuneButton;
     SeekBar phoneVolume;
 
     Player player;
@@ -83,30 +82,8 @@ public class MainActivity extends Activity {
         String fontPath = "fonts/CaviarDreams.ttf";
         Typeface tf = Typeface.createFromAsset(getAssets(), fontPath);
         statusText.setTypeface(tf);
-        autotuneButton = (Button)findViewById(R.id.autotuneButton);
 
-        autotuneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAutotune();
-                //autotuneButton.setAlpha(0);
-                //rl.removeView(autotuneButton);
-            }
-        });
 
-        ((ImageView)findViewById(R.id.tapButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bsocket.tellWatch(SocketThread.DO_TAP);
-            }
-        });
-
-        ((Button)findViewById(R.id.gotFileButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick (View view) {
-                doneFileReceive();
-            }
-        });
 
         ((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,6 +126,7 @@ public class MainActivity extends Activity {
         autotuner = new AutoTuner(this, atBuff, recorder, player);
 
         recorder.startRecording();
+
 
 
         /**
@@ -253,6 +231,8 @@ public class MainActivity extends Activity {
     public void doneAutotune (boolean success) {
         bsocket.tellWatch(SocketThread.STOP_AUTOTUNE);
         player.turnOffSound();
+
+
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
             player.changeSound(Player.CHIRP);
@@ -260,6 +240,8 @@ public class MainActivity extends Activity {
             if (!fsaver.isAlive()) fsaver.start();
             player.setSoftwareVolume(0.4);
             ready();
+
+
         } else {
             addInfo("Autotuning failed :(");
         }
@@ -286,8 +268,7 @@ public class MainActivity extends Activity {
 
 
     public void ready () {
-        addInfo("Ready!", fadeInButton);
-
+        addInfo("Ready!");
     }
 
 
@@ -308,17 +289,8 @@ public class MainActivity extends Activity {
         //doneAutotune(true);
     }
 
-    AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
-        @Override
-        public void onAnimationEnd (Animator animation) {
-            ValueAnimator fadeAnim = ObjectAnimator.ofFloat(autotuneButton, "alpha", 0f, 1f);
-            fadeAnim.setDuration(250);
-            fadeAnim.start();
-        }
-    };
-
     public void showAutotuneStep () {
-        addInfo("Connected. Ready for auto tuning?", fadeInButton);
+        addInfo("Connected. Please autotune");
     }
 
     public void setupBluetooth () {
@@ -391,15 +363,9 @@ public class MainActivity extends Activity {
         */
 
         switch (item.getItemId()) {
-            case R.id.volumeLowest: player.setSoftwareVolume(0.2); break;
-            case R.id.volumeLow: player.setSoftwareVolume(0.4); break;
-            case R.id.volumeMedium: player.setSoftwareVolume(0.6); break;
-            case R.id.volumeHigh: player.setSoftwareVolume(0.8); break;
-            case R.id.volumeHighest: player.setSoftwareVolume(1); break;
-            case R.id.volumeSilence: player.setSoftwareVolume(0); break;
-            //case R.id.highChirpSound: player.changeSound(Player.CHIRPHIGH); break;
-            //case R.id.highWhitenoiseSound: player.changeSound(Player.WNHIGH); break;
-
+            case R.id.initiateAutotune: startAutotune(); break;
+            case R.id.cutOff: doneFileReceive(); break;
+            case R.id.clearLast: fsaver.deleteLast(); break;
         }
 
 

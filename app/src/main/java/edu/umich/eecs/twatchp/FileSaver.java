@@ -18,6 +18,8 @@ public class FileSaver extends Thread {
     boolean running = true;
     byte [] tmpBuffer = new byte [44100];
 
+    File last_phone, last_watch;
+
     int saved_count = 0;
     FileOutputStream phone_tmp, watch_tmp;
 
@@ -95,6 +97,10 @@ public class FileSaver extends Thread {
 
                     String watch_filename = file.getAbsolutePath() + "/watch." + now + AUDIO_RECORDER_FILE_EXT_WAV;
                     String phone_filename = file.getAbsolutePath() + "/phone." + now + AUDIO_RECORDER_FILE_EXT_WAV;
+
+                    last_phone = new File(phone_filename);
+                    last_watch = new File(watch_filename);
+
                     AudioFile.CopyWaveFile(AUDIO_RECORDER_PHONE_TMP, phone_filename, mainActivity.recorder.bufferSize);
                     AudioFile.CopyWaveFile(AUDIO_RECORDER_WATCH_TMP, watch_filename, mainActivity.recorder.bufferSize);
                     //AudioFile.SaveFromBuffer(btData, watch_filename, mainActivity.recorder.bufferSize);
@@ -133,6 +139,12 @@ public class FileSaver extends Thread {
                 }
             }
         }
+    }
+
+    public void deleteLast () {
+        if (last_phone.exists()) last_phone.delete();
+        if (last_watch.exists()) last_watch.delete();
+        mainActivity.addInfo("Deleted the last file. Please continue.");
     }
 
     public void doneBTStream () {
