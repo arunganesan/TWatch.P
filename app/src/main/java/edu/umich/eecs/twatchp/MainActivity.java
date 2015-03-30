@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
 
     final static String TAG = "MainActivity";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,7 +222,7 @@ public class MainActivity extends Activity {
 
     public void startAutotune () {
         Log.v(TAG, "Starting auto tuner");
-        player.changeSound(Player.CHIRP);
+        setSpeed("fast");
         player.setSoftwareVolume(0.2);
         bsocket.tellWatch(SocketThread.START_AUTOTUNE);
         player.turnOnSound();
@@ -235,7 +236,7 @@ public class MainActivity extends Activity {
 
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
-            player.changeSound(Player.CHIRP);
+            setSpeed("fast");
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
             player.setSoftwareVolume(0.4);
@@ -340,6 +341,21 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    public void setSpeed(String mode) {
+        if (mode.equals("slow")) {
+            player.sound = Player.LONGCHIRP;
+            player.setSpace((int)(0.1*44100));
+            bsocket.tellWatch(bsocket.SLOWMODE);
+            autotuner.sound = autotuner.longchirp;
+            //startAutotune();
+        } else {
+            player.sound = Player.SHORTCHIRP;
+            player.setSpace((int)(0.05*44100));
+            bsocket.tellWatch(bsocket.FASTMODE);
+            autotuner.sound = autotuner.shortchirp;
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -366,6 +382,8 @@ public class MainActivity extends Activity {
             case R.id.initiateAutotune: startAutotune(); break;
             case R.id.cutOff: doneFileReceive(); break;
             case R.id.clearLast: fsaver.deleteLast(); break;
+            case R.id.switchToSlow: setSpeed("slow"); break;
+            case R.id.switchToFast: setSpeed("fast"); break;
         }
 
 

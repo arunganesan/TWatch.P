@@ -31,6 +31,9 @@ class SocketThread extends Thread {
     public static byte STOP = 7;
     public static byte STARTFILE = 8;
 
+    public static byte FASTMODE = 9;
+    public static byte SLOWMODE = 10;
+
     public SocketThread(BluetoothSocket socket, MainActivity myactivity, TapBuffer tap) {
         mmSocket = socket;
         InputStream tmpIn = null;
