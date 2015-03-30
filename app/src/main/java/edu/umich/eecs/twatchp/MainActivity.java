@@ -15,16 +15,20 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.MotionEvent;
+
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,26 +101,38 @@ public class MainActivity extends Activity {
             }
         });
 
-
-        ((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
+        ((Button)findViewById(R.id.gotFileButton)).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                bsocket.tellWatch(SocketThread.DO_DRAW);
+            public void onClick (View view) {
+                doneFileReceive();
             }
         });
 
+        //((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View view) {
+        //        bsocket.tellWatch(SocketThread.DO_DRAW);
+        //    }
+        //});
 
-        ((Button)findViewById(R.id.tweak)).setOnClickListener( new View.OnClickListener() {
+
+        ((ImageView)findViewById(R.id.drawButton)).setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                player.tweak(100);
+            public boolean onTouch(View v, MotionEvent e) {
+                Log.v(TAG, "Got touch event: " + e.getAction());
+
+                if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_DOWN) {
+                    bsocket.tellWatch(SocketThread.DO_DRAW);
+                }
+
+                return true;
             }
         });
     }
 
     public void initializeTWatch() {
         player = new Player(this);
-        player.setSoftwareVolume(0.4);
+        player.setSoftwareVolume(0.0); // XXX CHANGE
         player.setSpace((int)(0.1*44100));
         player.turnOffSound();
         player.startPlaying();
@@ -185,7 +201,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 ValueAnimator fadeAnim = ObjectAnimator.ofFloat(statusText, "alpha", 1f, 0f);
-                fadeAnim.setDuration(250);
+                fadeAnim.setDuration(500);
                 fadeAnim.addListener(doneFadeOut);
                 fadeAnim.start();
 
@@ -216,7 +232,7 @@ public class MainActivity extends Activity {
         public void onAnimationEnd (Animator animation) {
             statusText.setText(nextMessage);
             ValueAnimator fadeAnim = ObjectAnimator.ofFloat(statusText, "alpha", 0f, 1f);
-            fadeAnim.setDuration(250);
+            fadeAnim.setDuration(500);
             fadeAnim.start();
         }
     };
@@ -239,24 +255,32 @@ public class MainActivity extends Activity {
             player.changeSound(Player.CHIRP);
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
-            player.setSoftwareVolume(0.4);
+            player.setSoftwareVolume(0.1); /// XXX CHANGE
             ready();
         } else {
             addInfo("Autotuning failed :(");
         }
     }
 
-    public void reportReceipt (int numbytes) {
-        if (numbytes == 0) return;
-        if (btTap.isTapOpen() == false) {
-            addInfo("~~running~~");
-            player.turnOnSound();
-            player.playAligner();
-            fsaver.startNewFile();
-            btTap.openTap();
-            recTap.openTap();
-        }
+    public void startChirping () {
+        fsaver.startNewFile();
+        player.turnOnSound();
+        player.playAligner();
+        recTap.openTap();
+        btTap.openTap();
+
+        addInfo("Beeping...");
     }
+
+    public void stopChirping() {
+        player.turnOffSound();
+        fsaver.stopRecording();
+    }
+
+    public void doneFileReceive () {
+        fsaver.doneBTStream();
+    }
+
 
     public void ready () {
         addInfo("Ready!", fadeInButton);
@@ -276,9 +300,9 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        showAutotuneStep();
+        //showAutotuneStep();
         //startAutotune();
-        //doneAutotune(true);
+        doneAutotune(true); // XXX: CHANGE TO ENABLE AUTO TUNE
     }
 
     AnimatorListenerAdapter fadeInButton = new AnimatorListenerAdapter () {
@@ -304,7 +328,6 @@ public class MainActivity extends Activity {
 
         //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
         sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
-
 
 
         if (!sp.contains("watch address")) {
