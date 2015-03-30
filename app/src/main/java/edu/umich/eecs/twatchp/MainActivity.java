@@ -222,7 +222,6 @@ public class MainActivity extends Activity {
 
     public void startAutotune () {
         Log.v(TAG, "Starting auto tuner");
-        setSpeed("fast");
         player.setSoftwareVolume(0.2);
         bsocket.tellWatch(SocketThread.START_AUTOTUNE);
         player.turnOnSound();
@@ -236,7 +235,6 @@ public class MainActivity extends Activity {
 
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
-            setSpeed("fast");
             bsocket.monitor = true;
             if (!fsaver.isAlive()) fsaver.start();
             player.setSoftwareVolume(0.4);
@@ -285,6 +283,7 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
+        setSpeed("fast");
         showAutotuneStep();
         //startAutotune();
         //doneAutotune(true);
