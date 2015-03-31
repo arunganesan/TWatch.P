@@ -1,5 +1,7 @@
 package edu.umich.eecs.twatchp;
 
+import android.os.Vibrator;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -86,15 +88,15 @@ public class MainActivity extends Activity {
 
 
 
-        ((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bsocket.tellWatch(SocketThread.DO_DRAW);
-            }
-        });
+        //((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View view) {
+        //        bsocket.tellWatch(SocketThread.DO_DRAW);
+        //    }
+        //});
 
 
-        /*
+
         ((ImageView)findViewById(R.id.drawButton)).setOnTouchListener(new View.OnTouchListener() {
 
             @Override
@@ -108,7 +110,7 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
-        */
+
     }
 
     public void initializeTWatch() {
@@ -267,6 +269,10 @@ public class MainActivity extends Activity {
 
 
     public void ready () {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        v.vibrate(500);
+
         addInfo("Ready!");
     }
 
@@ -284,9 +290,9 @@ public class MainActivity extends Activity {
         bsocket.start();
 
         setSpeed("fast");
-        showAutotuneStep();
+        //showAutotuneStep();
         //startAutotune();
-        //doneAutotune(true);
+        doneAutotune(true);
     }
 
     public void showAutotuneStep () {
