@@ -44,6 +44,10 @@ public class MainActivity extends Activity {
     SocketThread bsocket;
     SeekBar phoneVolume;
 
+    RelativeLayout parentView;
+
+    ImageView holdButton, toggleButton;
+
     Player player;
     Recorder recorder;
     TapBuffer btTap, recTap;
@@ -54,6 +58,7 @@ public class MainActivity extends Activity {
 
     final static String TAG = "MainActivity";
 
+    enum Mode {TOGGLE, HOLD}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,19 +90,12 @@ public class MainActivity extends Activity {
         String fontPath = "fonts/CaviarDreams.ttf";
         Typeface tf = Typeface.createFromAsset(getAssets(), fontPath);
         statusText.setTypeface(tf);
+        parentView = (RelativeLayout)findViewById(R.id.parentView);
 
+        holdButton = (ImageView)findViewById(R.id.drawButton);
+        toggleButton = (ImageView)findViewById(R.id.toggleButton);
 
-
-        //((ImageView)findViewById(R.id.drawButton)).setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        bsocket.tellWatch(SocketThread.DO_DRAW);
-        //    }
-        //});
-
-
-
-        ((ImageView)findViewById(R.id.drawButton)).setOnTouchListener(new View.OnTouchListener() {
+        holdButton.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent e) {
@@ -111,7 +109,27 @@ public class MainActivity extends Activity {
             }
         });
 
+
+        toggleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (player.isSoundOn()) toggleButton.setImageResource(R.drawable.start);
+                else toggleButton.setImageResource(R.drawable.stop);
+                bsocket.tellWatch(SocketThread.DO_DRAW);
+            }
+        });
+
+        setMode(Mode.HOLD);
     }
+
+    public void setMode (Mode mode) {
+        //if (mode == C)
+        parentView.removeView(holdButton);
+        parentView.removeView(toggleButton);
+        if (mode == Mode.TOGGLE) parentView.addView(toggleButton);
+        if (mode == Mode.HOLD) parentView.addView(holdButton);
+    }
+
 
     public void initializeTWatch() {
         player = new Player(this);
@@ -389,6 +407,8 @@ public class MainActivity extends Activity {
             case R.id.clearLast: fsaver.deleteLast(); break;
             case R.id.switchToSlow: setSpeed("slow"); break;
             case R.id.switchToFast: setSpeed("fast"); break;
+            case R.id.setHoldMode: setMode(Mode.HOLD); break;
+            case R.id.setToggleMode: setMode(Mode.TOGGLE); break;
         }
 
 

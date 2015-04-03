@@ -4,6 +4,13 @@
     <item android:id="@+id/initiateAutotune" android:title="Autotune"
         android:orderInCategory="100" android:showAsAction="never" />
 
+    <item android:id="@+id/setHoldMode" android:title="Hold mode"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/setToggleMode" android:title="Toggle mode"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+
     <item android:id="@+id/switchToSlow" android:title="Slow mode"
         android:orderInCategory="100" android:showAsAction="never" />
 
