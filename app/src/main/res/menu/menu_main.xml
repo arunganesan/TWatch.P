@@ -10,17 +10,22 @@
     <item android:id="@+id/setToggleMode" android:title="Toggle mode"
         android:orderInCategory="100" android:showAsAction="never" />
 
-
-    <item android:id="@+id/switchToSlow" android:title="Slow mode"
-        android:orderInCategory="100" android:showAsAction="never" />
-
-    <item android:id="@+id/switchToFast" android:title="Fast mode"
-        android:orderInCategory="100" android:showAsAction="never" />
-
     <item android:id="@+id/clearLast" android:title="Clear last"
         android:orderInCategory="100" android:showAsAction="never" />
 
     <item android:id="@+id/cutOff" android:title="Cut off"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/soundChirp" android:title="Chirp"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/soundChirpHann" android:title="Chirp Hann"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/soundChirpHigh" android:title="High Chirp"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/soundWN" android:title="Whitenoise"
         android:orderInCategory="100" android:showAsAction="never" />
 
 

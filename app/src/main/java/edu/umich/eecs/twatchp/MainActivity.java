@@ -239,7 +239,6 @@ public class MainActivity extends Activity {
         }
     };
 
-
     public void startAutotune () {
         Log.v(TAG, "Starting auto tuner");
         player.setSoftwareVolume(0.2);
@@ -268,6 +267,8 @@ public class MainActivity extends Activity {
 
     public void startChirping () {
         fsaver.startNewFile();
+        player.chirpPlayCount = 0;
+
         player.turnOnSound();
         player.playAligner();
         recTap.openTap();
@@ -307,7 +308,11 @@ public class MainActivity extends Activity {
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
 
-        setSpeed("fast");
+        player.sound = Player.SHORTCHIRP;
+        player.setSpace((int)(0.05*44100));
+        //bsocket.tellWatch(bsocket.FASTMODE);
+        autotuner.sound = autotuner.shortchirp;
+
         //showAutotuneStep();
         //startAutotune();
         doneAutotune(true);
@@ -364,18 +369,24 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    public void setSpeed(String mode) {
-        if (mode.equals("slow")) {
-            player.sound = Player.LONGCHIRP;
-            player.setSpace((int)(0.1*44100));
-            bsocket.tellWatch(bsocket.SLOWMODE);
-            autotuner.sound = autotuner.longchirp;
-            //startAutotune();
-        } else {
-            player.sound = Player.SHORTCHIRP;
-            player.setSpace((int)(0.05*44100));
-            bsocket.tellWatch(bsocket.FASTMODE);
-            autotuner.sound = autotuner.shortchirp;
+    public void setSound (int id) {
+        switch (id) {
+            case R.id.soundWN:
+                player.sound = Player.WHITENOISE;
+                bsocket.tellWatch(SocketThread.SOUND_WN);
+                break;
+            case R.id.soundChirp:
+                player.sound = Player.SHORTCHIRP;
+                bsocket.tellWatch(SocketThread.SOUND_CHIRP);
+                break;
+            case R.id.soundChirpHann:
+                player.sound = Player.CHIRPHANN;
+                bsocket.tellWatch(SocketThread.SOUND_CHIRPHANN);
+                break;
+            case R.id.soundChirpHigh:
+                player.sound = Player.HIGHCHIRP;
+                bsocket.tellWatch(SocketThread.SOUND_HIGHCHIRP);
+                break;
         }
     }
 
@@ -405,10 +416,15 @@ public class MainActivity extends Activity {
             case R.id.initiateAutotune: startAutotune(); break;
             case R.id.cutOff: doneFileReceive(); break;
             case R.id.clearLast: fsaver.deleteLast(); break;
-            case R.id.switchToSlow: setSpeed("slow"); break;
-            case R.id.switchToFast: setSpeed("fast"); break;
             case R.id.setHoldMode: setMode(Mode.HOLD); break;
             case R.id.setToggleMode: setMode(Mode.TOGGLE); break;
+
+            case R.id.soundChirp:
+            case R.id.soundChirpHann:
+            case R.id.soundChirpHigh:
+            case R.id.soundWN:
+                setSound(item.getItemId());
+                break;
         }
 
 

@@ -26,13 +26,22 @@ class SocketThread extends Thread {
     public static byte DO_TAP = 4;
     public static byte DO_DRAW = 5;
 
-
     public static byte START = 6;
     public static byte STOP = 7;
     public static byte STARTFILE = 8;
 
     public static byte FASTMODE = 9;
     public static byte SLOWMODE = 10;
+
+    public static byte SILENCE = 11;
+    public static byte UNSILENCE = 12;
+    public static byte PLAY100 = 13;
+    public static byte PLAYCONT = 14;
+
+    public static byte SOUND_CHIRP = 15;
+    public static byte SOUND_WN = 16;
+    public static byte SOUND_HIGHCHIRP = 17;
+    public static byte SOUND_CHIRPHANN = 18;
 
     public SocketThread(BluetoothSocket socket, MainActivity myactivity, TapBuffer tap) {
         mmSocket = socket;
