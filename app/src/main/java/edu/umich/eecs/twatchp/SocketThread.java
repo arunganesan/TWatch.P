@@ -179,6 +179,7 @@ class SocketThread extends Thread {
         // The input loop above might be locked on the inputstream.read
         try {
             mmOutStream.write(COMMAND);
+            mmOutStream.flush();
         } catch (Exception e) {}
     }
 

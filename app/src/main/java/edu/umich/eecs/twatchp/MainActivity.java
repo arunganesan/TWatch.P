@@ -57,6 +57,7 @@ public class MainActivity extends Activity {
     String nextMessage = "";
     ExperimentManager expMan;
 
+    public int startDelay = 0;
 
     final static String TAG = "MainActivity";
 
@@ -161,8 +162,6 @@ public class MainActivity extends Activity {
         autotuner = new AutoTuner(this, atBuff, recorder, player);
 
         recorder.startRecording();
-        expMan = new ExperimentManager(player, bsocket, this, fsaver);
-
         /**
          * - Create player
          * - Create 2 Taps and 1 Countdown
@@ -278,15 +277,25 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void startChirping () {
-        fsaver.startNewFile();
-        player.chirpPlayCount = 0;
-        player.turnOnSound();
-        player.playAligner();
-        recTap.openTap();
-        btTap.openTap();
 
-        addInfo("Beeping...");
+
+    public void startChirping () {
+        Log.v(TAG, "Received chirp command from BT");
+        new Thread () {
+            @Override
+            public void run () {
+                fsaver.startNewFile();
+
+                try { Thread.sleep(startDelay); } catch (Exception e) {}
+
+                player.chirpPlayCount = 0;
+                player.turnOnSound();
+                player.playAligner();
+                recTap.openTap();
+                btTap.openTap();
+                addInfo("Beeping...");
+            }
+        }.start();
     }
 
     public void stopChirping() {
@@ -316,14 +325,22 @@ public class MainActivity extends Activity {
     public void setBTSocket (BluetoothSocket socket) {
         // Even if another one exists, we update it
         initializeTWatch();
+
+
         sp.edit().putString("watch address", socket.getRemoteDevice().getAddress());
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
+
+
 
         player.sound = Player.SHORTCHIRP;
         player.setSpace((int)(0.05*44100));
         //bsocket.tellWatch(bsocket.FASTMODE);
         autotuner.sound = autotuner.shortchirp;
+
+
+
+        expMan = new ExperimentManager(player, bsocket, this, fsaver);
 
         //showAutotuneStep();
         //startAutotune();
@@ -342,8 +359,8 @@ public class MainActivity extends Activity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
-        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
+        sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
+        //sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
 
 
 
