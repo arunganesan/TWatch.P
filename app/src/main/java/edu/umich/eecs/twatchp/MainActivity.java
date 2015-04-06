@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
 
     RelativeLayout parentView;
 
-    ImageView holdButton, toggleButton;
+    ImageView holdButton, toggleButton, automateButton;
 
     Player player;
     Recorder recorder;
@@ -55,10 +55,12 @@ public class MainActivity extends Activity {
     FileSaver fsaver;
     AutoTuner autotuner;
     String nextMessage = "";
+    ExperimentManager expMan;
+
 
     final static String TAG = "MainActivity";
 
-    enum Mode {TOGGLE, HOLD}
+    enum Mode {TOGGLE, HOLD, EXP}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,13 @@ public class MainActivity extends Activity {
 
         holdButton = (ImageView)findViewById(R.id.drawButton);
         toggleButton = (ImageView)findViewById(R.id.toggleButton);
+        automateButton = ((ImageView)findViewById(R.id.automate));
+        automateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expMan.do_an_experiment();
+            }
+        });
 
         holdButton.setOnTouchListener(new View.OnTouchListener() {
 
@@ -110,6 +119,9 @@ public class MainActivity extends Activity {
         });
 
 
+
+
+
         toggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,15 +131,17 @@ public class MainActivity extends Activity {
             }
         });
 
-        setMode(Mode.HOLD);
+        setMode(Mode.EXP);
     }
 
     public void setMode (Mode mode) {
         //if (mode == C)
         parentView.removeView(holdButton);
         parentView.removeView(toggleButton);
+        parentView.removeView(automateButton);
         if (mode == Mode.TOGGLE) parentView.addView(toggleButton);
         if (mode == Mode.HOLD) parentView.addView(holdButton);
+        if (mode == Mode.EXP) parentView.addView(automateButton);
     }
 
 
@@ -147,8 +161,7 @@ public class MainActivity extends Activity {
         autotuner = new AutoTuner(this, atBuff, recorder, player);
 
         recorder.startRecording();
-
-
+        expMan = new ExperimentManager(player, bsocket, this, fsaver);
 
         /**
          * - Create player
@@ -268,7 +281,6 @@ public class MainActivity extends Activity {
     public void startChirping () {
         fsaver.startNewFile();
         player.chirpPlayCount = 0;
-
         player.turnOnSound();
         player.playAligner();
         recTap.openTap();

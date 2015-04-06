@@ -30,6 +30,8 @@ public class FileSaver extends Thread {
     String AUDIO_RECORDER_PHONE_TMP;
     String AUDIO_RECORDER_WATCH_TMP;
 
+    String prefix = "";
+
     long now;
 
     boolean closeBTwhenDone = false, closeRECwhenDone = false;
@@ -48,6 +50,10 @@ public class FileSaver extends Thread {
         File tmpWatch = new File(filepath, "watch_temp.raw");
         AUDIO_RECORDER_PHONE_TMP = tmpPhone.getAbsolutePath();
         AUDIO_RECORDER_WATCH_TMP = tmpWatch.getAbsolutePath();
+    }
+
+    public void setPrefix (String prefix) {
+        this.prefix = prefix;
     }
 
     public void run () {
@@ -95,8 +101,8 @@ public class FileSaver extends Thread {
                     String filepath = Environment.getExternalStorageDirectory().getPath();
                     File file = new File(filepath, AUDIO_RECORDER_FOLDER);
 
-                    String watch_filename = file.getAbsolutePath() + "/watch." + now + AUDIO_RECORDER_FILE_EXT_WAV;
-                    String phone_filename = file.getAbsolutePath() + "/phone." + now + AUDIO_RECORDER_FILE_EXT_WAV;
+                    String watch_filename = file.getAbsolutePath() + "/watch." + prefix + "." + now + AUDIO_RECORDER_FILE_EXT_WAV;
+                    String phone_filename = file.getAbsolutePath() + "/phone." + prefix + "." + now + AUDIO_RECORDER_FILE_EXT_WAV;
 
                     last_phone = new File(phone_filename);
                     last_watch = new File(watch_filename);
