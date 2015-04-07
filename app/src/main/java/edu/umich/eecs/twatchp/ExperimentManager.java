@@ -30,6 +30,7 @@ public class ExperimentManager {
 
                 // XXX: ASSUMES ALREADY AUTO TUNED
                 fsaver.setPrefix("" + exp_count);
+                try { Thread.sleep(5000); } catch (Exception e) {}
 
                 // Both play, watch 100 step
                 Log.v(TAG, "Both play, watch 100...");
@@ -42,7 +43,7 @@ public class ExperimentManager {
 
 
                 Log.v(TAG, "Done. Should receive file now.");
-                try { Thread.sleep(12000); }  catch (Exception e) {}
+                try { Thread.sleep(14000); }  catch (Exception e) {}
                 Log.v(TAG, "Woke up");
 
                 // Both play, phone 100 step
@@ -70,7 +71,7 @@ public class ExperimentManager {
                 bsocket.tellWatch(SocketThread.DO_DRAW);
 
                 Log.v(TAG, "Done, sleeping");
-                try { Thread.sleep(12000); }  catch (Exception e) {}
+                try { Thread.sleep(14000); }  catch (Exception e) {}
                 Log.v(TAG, "Woke up");
 
 
@@ -84,9 +85,11 @@ public class ExperimentManager {
                 bsocket.tellWatch(SocketThread.DO_DRAW);
 
                 Log.v(TAG, "Done, sleeping");
-                try { Thread.sleep(12000); }  catch (Exception e) {}
+                try { Thread.sleep(14000); }  catch (Exception e) {}
                 Log.v(TAG, "Woke up");
 
+
+                player.countMode = false;
                 bsocket.tellWatch(SocketThread.PLAYCONT);
                 player.setSoftwareVolume(0.4);
             }
