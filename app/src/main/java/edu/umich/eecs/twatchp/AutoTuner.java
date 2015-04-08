@@ -31,6 +31,10 @@ public class AutoTuner {
     String message = "";
     int numFound = -1;
 
+
+    long coarseTime = 0;
+    long fineTime = 0;
+
     static { System.loadLibrary("MyLib"); }
 
     public AutoTuner(MainActivity context, CountdownBuffer buffer, Recorder recorder, Player player) {
@@ -43,6 +47,8 @@ public class AutoTuner {
     Runnable tuneRoutine = new Runnable () {
         @Override
         public void run() {
+            long start = System.currentTimeMillis();
+            long end;
             try {
                 Thread.sleep(250);
                 buffer.getAll();
@@ -80,7 +86,14 @@ public class AutoTuner {
             int IDEAL = (int)(2*44100.0/(player.sound.length + player.SPACE));
             boolean rerun = false;
 
+
             //if (!finetune) { // Once in finetune, we stay there.
+            end = System.currentTimeMillis();
+            if (finetune) fineTime += (end - start);
+            else coarseTime += (end - start);
+
+            start = System.currentTimeMillis();
+
             if (numFound > (IDEAL - 2) && numFound < (IDEAL + 2)) {
                 finetune = true;
             } else if (numFound > (IDEAL/2 - 2) && numFound < (IDEAL/2 + 2)) {
@@ -94,6 +107,8 @@ public class AutoTuner {
                 rerun = true;
                 finetune = false;
             }
+
+
             //}
 
             if (finetune) {
@@ -130,17 +145,27 @@ public class AutoTuner {
                 if (!finetune) attemptNumber++;
                 if (attemptNumber > MAXATTEMPTS) {
                     //mainActivity.addInfo("Autotuned failed after " + (attemptNumber - 1) + " attempts.", 250);
-                    mainActivity.doneAutotune(false);
+                    end = System.currentTimeMillis();
+                    if (finetune) fineTime += (end - start);
+                    else coarseTime += (end - start);
+
+                    mainActivity.doneAutotune(false, coarseTime, fineTime);
                 } else {
                     try {
                         Thread.currentThread().sleep(250);
+                        end = System.currentTimeMillis();
+                        if (finetune) fineTime += (end - start);
+                        else coarseTime += (end - start);
                         tuneRoutine.run();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             } else {
-                mainActivity.doneAutotune(true);
+                end = System.currentTimeMillis();
+                if (finetune) fineTime += (end - start);
+                else coarseTime += (end - start);
+                mainActivity.doneAutotune(true, coarseTime, fineTime);
             }
 
             //mainActivity.addInfo("Result - " + message + " (" + numFound + ")", 50);
@@ -166,6 +191,9 @@ public class AutoTuner {
         finetune = false;
         message = "";
         numFound = -1;
+
+        coarseTime = 0;
+        fineTime = 0;
 
         new Timer().schedule(new TimerTask() {
             @Override

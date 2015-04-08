@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 
@@ -56,6 +57,8 @@ public class MainActivity extends Activity {
     AutoTuner autotuner;
     String nextMessage = "";
     ExperimentManager expMan;
+
+    Random rand = new Random();
 
     public int startDelay = 0;
 
@@ -101,7 +104,8 @@ public class MainActivity extends Activity {
         automateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                expMan.do_an_experiment();
+                shuffleAndStartAutotune();
+                //expMan.do_an_experiment();
             }
         });
 
@@ -110,11 +114,9 @@ public class MainActivity extends Activity {
             @Override
             public boolean onTouch(View v, MotionEvent e) {
                 Log.v(TAG, "Got touch event: " + e.getAction());
-
                 if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_DOWN) {
                     bsocket.tellWatch(SocketThread.DO_DRAW);
                 }
-
                 return true;
             }
         });
@@ -251,6 +253,13 @@ public class MainActivity extends Activity {
         }
     };
 
+
+    public void shuffleAndStartAutotune () {
+        int max = 3308;
+        player.tweak(rand.nextInt(max));
+        startAutotune();
+    }
+
     public void startAutotune () {
         Log.v(TAG, "Starting auto tuner");
         player.setSoftwareVolume(0.2);
@@ -259,11 +268,17 @@ public class MainActivity extends Activity {
         autotuner.start();
     }
 
-    public void doneAutotune (boolean success) {
+    public void doneAutotune (boolean success, long coarse, long fine) {
         bsocket.tellWatch(SocketThread.STOP_AUTOTUNE);
         player.turnOffSound();
 
+        double cTime = ((double)coarse)/1000;
+        double fTime = ((double)fine)/1000;
 
+        if (success) addInfo("Success - c:" + cTime + " f:" + fTime);
+        else addInfo("Failed - c:" + cTime + " f:" + fTime);
+
+        /*
         if (success) {
             bsocket.tellWatch(SocketThread.START_NORMAL);
             bsocket.monitor = true;
@@ -275,6 +290,7 @@ public class MainActivity extends Activity {
         } else {
             addInfo("Autotuning failed :(");
         }
+        */
     }
 
 
@@ -344,7 +360,7 @@ public class MainActivity extends Activity {
 
         //showAutotuneStep();
         //startAutotune();
-        doneAutotune(true);
+        doneAutotune(true, 0, 0);
     }
 
     public void showAutotuneStep () {
