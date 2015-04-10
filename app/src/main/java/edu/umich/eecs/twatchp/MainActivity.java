@@ -46,7 +46,6 @@ public class MainActivity extends Activity {
 
     RelativeLayout parentView;
 
-    ImageView holdButton, toggleButton;
 
     Player player;
     Recorder recorder;
@@ -55,6 +54,7 @@ public class MainActivity extends Activity {
     FileSaver fsaver;
     AutoTuner autotuner;
     String nextMessage = "";
+    ExperimentManager expman;
 
     final static String TAG = "MainActivity";
 
@@ -92,43 +92,23 @@ public class MainActivity extends Activity {
         statusText.setTypeface(tf);
         parentView = (RelativeLayout)findViewById(R.id.parentView);
 
-        holdButton = (ImageView)findViewById(R.id.drawButton);
-        toggleButton = (ImageView)findViewById(R.id.toggleButton);
-
-        holdButton.setOnTouchListener(new View.OnTouchListener() {
-
+        ((ImageView)findViewById(R.id.borderButton)).setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent e) {
-                Log.v(TAG, "Got touch event: " + e.getAction());
-
-                if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_DOWN) {
-                    bsocket.tellWatch(SocketThread.DO_DRAW);
-                }
-
-                return true;
+            public void onClick(View v) {
+                expman.do_border();
             }
         });
 
 
-        toggleButton.setOnClickListener(new View.OnClickListener() {
+        ((ImageView)findViewById(R.id.pointsButton)).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if (player.isSoundOn()) toggleButton.setImageResource(R.drawable.start);
-                else toggleButton.setImageResource(R.drawable.stop);
-                bsocket.tellWatch(SocketThread.DO_DRAW);
+            public void onClick(View v) {
+                expman.do_16_points();
             }
         });
 
-        setMode(Mode.HOLD);
     }
 
-    public void setMode (Mode mode) {
-        //if (mode == C)
-        parentView.removeView(holdButton);
-        parentView.removeView(toggleButton);
-        if (mode == Mode.TOGGLE) parentView.addView(toggleButton);
-        if (mode == Mode.HOLD) parentView.addView(holdButton);
-    }
 
 
     public void initializeTWatch() {
@@ -147,7 +127,7 @@ public class MainActivity extends Activity {
         autotuner = new AutoTuner(this, atBuff, recorder, player);
 
         recorder.startRecording();
-
+        expman = new ExperimentManager(player, bsocket, this);
 
 
         /**
@@ -403,12 +383,6 @@ public class MainActivity extends Activity {
 
         switch (item.getItemId()) {
             case R.id.initiateAutotune: startAutotune(); break;
-            case R.id.cutOff: doneFileReceive(); break;
-            case R.id.clearLast: fsaver.deleteLast(); break;
-            case R.id.switchToSlow: setSpeed("slow"); break;
-            case R.id.switchToFast: setSpeed("fast"); break;
-            case R.id.setHoldMode: setMode(Mode.HOLD); break;
-            case R.id.setToggleMode: setMode(Mode.TOGGLE); break;
         }
 
 

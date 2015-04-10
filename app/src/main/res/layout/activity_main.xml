@@ -17,25 +17,31 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-
-    <ImageView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:id="@+id/drawButton"
-        android:src="@drawable/staples_easy_button"
+        android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        />
+        android:layout_below="@id/statusText"
+        >
 
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:id="@+id/toggleButton"
-        android:src="@drawable/start"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/borderButton"
+            android:src="@drawable/job"
+            android:layout_gravity="bottom" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pointsButton"
+            android:src="@drawable/bird"
+            android:layout_gravity="bottom" />
+
+    </LinearLayout>
 
 
 </RelativeLayout>
