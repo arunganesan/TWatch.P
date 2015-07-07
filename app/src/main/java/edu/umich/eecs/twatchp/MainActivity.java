@@ -127,7 +127,6 @@ public class MainActivity extends Activity {
         autotuner = new AutoTuner(this, atBuff, recorder, player);
 
         recorder.startRecording();
-        expman = new ExperimentManager(player, bsocket, this);
 
 
         /**
@@ -286,6 +285,8 @@ public class MainActivity extends Activity {
         sp.edit().putString("watch address", socket.getRemoteDevice().getAddress());
         bsocket = new SocketThread(socket, this, btTap);
         bsocket.start();
+
+        expman = new ExperimentManager(player, bsocket, this);
 
         setSpeed("fast");
         //showAutotuneStep();

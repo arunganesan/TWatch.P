@@ -27,12 +27,12 @@ public class ExperimentManager {
                 for (int i = 0; i < 16; i++) {
                     bsocket.tellWatch(SocketThread.DO_DRAW);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1500);
                     } catch (Exception e) {
                     }
                     bsocket.tellWatch(SocketThread.DO_DRAW);
                     try {
-                        Thread.sleep(1200);
+                        Thread.sleep(2000);
                     } catch (Exception e) {
                     }
                 }
@@ -48,12 +48,12 @@ public class ExperimentManager {
                 for (int i = 0; i < 6; i++) {
                     bsocket.tellWatch(SocketThread.DO_DRAW);
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(4000);
                     } catch (Exception e) {
                     }
                     bsocket.tellWatch(SocketThread.DO_DRAW);
                     try {
-                        Thread.sleep(7000);
+                        Thread.sleep(5000);
                     } catch (Exception e) {
                     }
                 }
