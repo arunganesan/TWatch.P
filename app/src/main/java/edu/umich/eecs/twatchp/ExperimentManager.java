@@ -30,7 +30,7 @@ public class ExperimentManager {
 
                 // XXX: ASSUMES ALREADY AUTO TUNED
                 fsaver.setPrefix("" + exp_count);
-                try { Thread.sleep(5000); } catch (Exception e) {}
+                try { Thread.sleep(1000); } catch (Exception e) {}
 
                 // Both play, watch 100 step
                 Log.v(TAG, "Both play, watch 100...");
@@ -59,38 +59,7 @@ public class ExperimentManager {
                 try { Thread.sleep(22000); }  catch (Exception e) {}
                 Log.v(TAG, "Woke up");
 
-
-                // Only phone plays
-                Log.v(TAG, "Experiment 3, Only phone plays");
-                mainActivity.startDelay = 0;
-                player.countMode = true;
-                player.chirpPlayCount = 0;
-                bsocket.tellWatch(SocketThread.SILENCE);
-                bsocket.tellWatch(SocketThread.DO_DRAW);
-                try { Thread.sleep(12000); }  catch (Exception e) {}
-                bsocket.tellWatch(SocketThread.DO_DRAW);
-
-                Log.v(TAG, "Done, sleeping");
-                try { Thread.sleep(14000); }  catch (Exception e) {}
-                Log.v(TAG, "Woke up");
-
-
-                // Only watch plays
-                player.setSoftwareVolume(0.0);
-                Log.v(TAG, "Experiment 4, Only watch plays");
-                bsocket.tellWatch(SocketThread.UNSILENCE);
-                bsocket.tellWatch(SocketThread.PLAY100);
-                bsocket.tellWatch(SocketThread.DO_DRAW);
-                try { Thread.sleep(12000); }  catch (Exception e) {}
-                bsocket.tellWatch(SocketThread.DO_DRAW);
-
-                Log.v(TAG, "Done, sleeping");
-                try { Thread.sleep(14000); }  catch (Exception e) {}
-                Log.v(TAG, "Woke up");
-
-
                 player.countMode = false;
-                bsocket.tellWatch(SocketThread.PLAYCONT);
                 player.setSoftwareVolume(0.4);
             }
 
