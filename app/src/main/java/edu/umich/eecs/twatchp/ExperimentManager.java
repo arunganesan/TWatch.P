@@ -35,6 +35,8 @@ public class ExperimentManager {
                 // Both play, watch 100 step
                 Log.v(TAG, "Both play, watch 100...");
                 player.countMode = false;
+
+                mainActivity.startDelay = 0;
                 bsocket.tellWatch(SocketThread.PLAY100);
                 bsocket.tellWatch(SocketThread.DO_DRAW);
                 try { Thread.sleep(12000); } catch (Exception e) {}
@@ -49,6 +51,7 @@ public class ExperimentManager {
                 // Both play, phone 100 step
                 Log.v(TAG, "Experiment 2, both play, phone 100");
                 player.countMode = true;
+                player.chirpPlayCount = 0;
                 bsocket.tellWatch(SocketThread.PLAYCONT);
                 bsocket.tellWatch(SocketThread.DO_DRAW);
                 mainActivity.startDelay = 4000;
