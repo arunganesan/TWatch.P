@@ -279,7 +279,7 @@ public class MainActivity extends Activity {
      *
      * @param socket
      */
-    public void setWiFiSocket (String name, Socket socket) {
+    public void setWiFiSocket (Socket socket) {
         phoneSocket = socket;
         addInfo("Connected to WiFi stream.");
         doneNetworks();
