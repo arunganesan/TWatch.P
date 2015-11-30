@@ -32,6 +32,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +57,13 @@ public class MainActivity extends Activity {
     CountdownBuffer atBuff;
     FileSaver fsaver;
     AutoTuner autotuner;
+    WifiSink wifisink;
     String nextMessage = "";
+
+    BluetoothSocket btSocket;
+    Socket wifiSocket;
+    BufferedInputStream wifiIn;
+    BufferedOutputStream wifiOut;
 
     final static String TAG = "MainActivity";
 
@@ -133,8 +142,8 @@ public class MainActivity extends Activity {
 
     public void initializeTWatch() {
         player = new Player(this);
-        player.setSoftwareVolume(0.4);
-        player.setSpace((int)(0.05*44100));
+        player.setSoftwareVolume(0.1);
+        player.setSpace((int) (0.5 * 44100));
         player.turnOffSound();
         player.startPlaying();
 
@@ -143,9 +152,12 @@ public class MainActivity extends Activity {
         atBuff = new CountdownBuffer();
 
         recorder = new Recorder(this, recTap, atBuff);
-        fsaver = new FileSaver(this, btTap, recTap);
+        //fsaver = new FileSaver(this, btTap, recTap);
         autotuner = new AutoTuner(this, atBuff, recorder, player);
+        wifisink = new WifiSink(this, wifiSocket, wifiIn, wifiOut, recTap, btTap);
+        bsocket = new SocketThread(btSocket, this, btTap);
 
+        bsocket.start();
         recorder.startRecording();
 
 
@@ -177,6 +189,270 @@ public class MainActivity extends Activity {
          *      - (eventually, we don't save and just process the stream in real time *somehow*)
          */
     }
+
+
+
+
+
+
+    public void startAutotune () {
+        Log.v(TAG, "Starting auto tuner");
+        player.setSoftwareVolume(0.2);
+        bsocket.tellWatch(SocketThread.START_AUTOTUNE);
+        player.turnOnSound();
+        autotuner.start();
+    }
+
+    public void doneAutotune (boolean success) {
+        bsocket.tellWatch(SocketThread.STOP_AUTOTUNE);
+        player.turnOffSound();
+
+        if (success) {
+            bsocket.tellWatch(SocketThread.START_NORMAL);
+            bsocket.monitor = true;
+            //if (!fsaver.isAlive()) fsaver.start();
+            if (!wifisink.isAlive()) wifisink.start();
+            player.setSoftwareVolume(0.4);
+            ready();
+
+        } else {
+            addInfo("Autotuning failed :(");
+        }
+    }
+
+    public void startChirping () {
+        //fsaver.startNewFile();
+        wifisink.startNewFile();
+        player.turnOnSound();
+        player.playAligner();
+        recTap.openTap();
+        btTap.openTap();
+
+        addInfo("Beeping...");
+    }
+
+    public void stopChirping() {
+        player.turnOffSound();
+        wifisink.stopRecording();
+        //fsaver.stopRecording();
+    }
+
+    public void doneFileReceive () {
+        //fsaver.doneBTStream();
+        wifisink.doneBTStream();
+    }
+
+
+    public void ready () {
+        //Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        //v.vibrate(500);
+
+        addInfo("Ready!");
+    }
+
+
+    public void fakeSetBTSocket () {
+        initializeTWatch();
+        //doneAutotune(true);
+    }
+
+    /**
+     * Called by the blueooth connect thread after a connection has been esablished.
+     *
+     * @param socket The socket ued to perform any communication with BT
+     */
+    public void setBTSocket (BluetoothSocket socket) {
+        // Even if another one exists, we update it
+        sp.edit().putString("watch address", socket.getRemoteDevice().getAddress());
+        this.btSocket = socket;
+        addInfo("Connected to bluetooth.");
+        setupNetwork();
+    }
+
+    /**
+     * Callback function from the wifi connect thread. After this, the initialization
+     * progresses sequentially by calling doneNetworks()
+     *
+     * @param socket
+     * @param server_in
+     * @param server_out
+     */
+    public void setWiFiSocket (Socket socket, BufferedInputStream server_in, BufferedOutputStream server_out) {
+        wifiSocket = socket;
+        wifiIn = server_in;
+        wifiOut = server_out;
+
+        addInfo("Connected to network.");
+        doneNetworks();
+    }
+
+    public void doneNetworks () {
+        initializeTWatch();
+        setSpeed("slow");
+        // XXX. Enable autotune for actual usage.
+        //showAutotuneStep();
+        //startAutotune();
+        doneAutotune(true);
+    }
+
+    public void showAutotuneStep() {
+        addInfo("Connected. Please autotune");
+    }
+
+
+    /**
+     * Sets up the network. Simply try to connect to the server
+     * and return the socket in a callback function once connection
+     * has been established.
+     *
+     * Does this in a separate thread
+     */
+    public void setupNetwork () {
+        addInfo("Connecting to network...");
+        new WiFiConnectThread(this).start();
+    }
+
+    /**
+     * Sets up the bluetooth connection.
+     */
+    public void setupBluetooth () {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        int REQUEST_ENABLE_BT = 1;
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
+        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
+
+        if (!sp.contains("watch address")) {
+            // XXX: This is a hack solution for now
+            Log.v(TAG, "Looking for watches");
+
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            BluetoothDevice target = null;
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                        if (device.getName().contains("Gear")) {
+                        sp.edit().putString("watch address", device.getAddress()).commit();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!sp.contains("watch address")) {
+            Log.e(TAG, "Could not find device! Exiting");
+            statusText.setText("Watch not found");
+        } else {
+            String address = sp.getString("watch address", "0");
+            assert !address.equals("0");
+            Log.v(TAG, "Found previous connection " + address);
+            new ConnectThread(address, mBluetoothAdapter, this).start();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    public void setSpeed(String mode) {
+        if (mode.equals("slow")) {
+            player.sound = Player.LONGCHIRP;
+            //player.setSpace((int)(0.1*44100));
+            player.setSpace((int)(1*44100));
+            bsocket.tellWatch(bsocket.SLOWMODE);
+            autotuner.sound = autotuner.longchirp;
+            //startAutotune();
+        } else {
+            player.sound = Player.SHORTCHIRP;
+            player.setSpace((int)(0.05*44100));
+            bsocket.tellWatch(bsocket.FASTMODE);
+            autotuner.sound = autotuner.shortchirp;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+
+        /*
+        Map<Integer, short[]> map = new HashMap<Integer, short[]>();
+
+        map.put(R.id.chirpSound, Player.CHIRP);
+        map.put(R.id.pnSound, Player.PN);
+        map.put(R.id.goldSound, Player.GOLD);
+        map.put(R.id.whitenoiseSound, Player.WN);
+        map.put(R.id.highWhitenoiseSound, Player.WNHIGH);
+        map.put(R.id.highWhitenoiseHannSound, Player.WNHIGHHANN);
+        map.put(R.id.highChirpSound, Player.CHIRPHIGH);
+        map.put(R.id.highChirpHannSound, Player.CHIRPHIGHHANN);
+        int id = item.getItemId();
+        player.changeSound(map.get(id));
+        Toast.makeText(this, "Changed sound", Toast.LENGTH_LONG).show();
+        */
+
+        switch (item.getItemId()) {
+            case R.id.initiateAutotune: startAutotune(); break;
+            case R.id.cutOff: doneFileReceive(); break;
+            case R.id.clearLast: fsaver.deleteLast(); break;
+            case R.id.switchToSlow: setSpeed("slow"); break;
+            case R.id.switchToFast: setSpeed("fast"); break;
+            case R.id.setHoldMode: setMode(Mode.HOLD); break;
+            case R.id.setToggleMode: setMode(Mode.TOGGLE); break;
+        }
+
+        //noinspection SimplifiableIfStatement
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("OnDestroy");
+        player.stopPlaying();
+        recorder.stopRecording();
+        if (recorder.recorder != null) recorder.recorder.release();
+        if (player.audioTrack != null) player.audioTrack.release();
+        bsocket.cancel();
+        wifisink.shutdown();
+        //fsaver.shutdown();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public void addInfo (final String message, final int time) {
         runOnUiThread(new Runnable() {
             @Override
@@ -238,197 +514,4 @@ public class MainActivity extends Activity {
             fadeAnim.start();
         }
     };
-
-
-    public void startAutotune () {
-        Log.v(TAG, "Starting auto tuner");
-        player.setSoftwareVolume(0.2);
-        bsocket.tellWatch(SocketThread.START_AUTOTUNE);
-        player.turnOnSound();
-        autotuner.start();
-    }
-
-    public void doneAutotune (boolean success) {
-        bsocket.tellWatch(SocketThread.STOP_AUTOTUNE);
-        player.turnOffSound();
-
-
-        if (success) {
-            bsocket.tellWatch(SocketThread.START_NORMAL);
-            bsocket.monitor = true;
-            if (!fsaver.isAlive()) fsaver.start();
-            player.setSoftwareVolume(0.4);
-            ready();
-
-
-        } else {
-            addInfo("Autotuning failed :(");
-        }
-    }
-
-    public void startChirping () {
-        fsaver.startNewFile();
-        player.turnOnSound();
-        player.playAligner();
-        recTap.openTap();
-        btTap.openTap();
-
-        addInfo("Beeping...");
-    }
-
-    public void stopChirping() {
-        player.turnOffSound();
-        fsaver.stopRecording();
-    }
-
-    public void doneFileReceive () {
-        fsaver.doneBTStream();
-    }
-
-
-    public void ready () {
-        //Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 500 milliseconds
-        //v.vibrate(500);
-
-        addInfo("Ready!");
-    }
-
-
-    public void fakeSetBTSocket () {
-        initializeTWatch();
-        //doneAutotune(true);
-    }
-
-    public void setBTSocket (BluetoothSocket socket) {
-        // Even if another one exists, we update it
-        initializeTWatch();
-        sp.edit().putString("watch address", socket.getRemoteDevice().getAddress());
-        bsocket = new SocketThread(socket, this, btTap);
-        bsocket.start();
-
-        setSpeed("fast");
-        //showAutotuneStep();
-        //startAutotune();
-        doneAutotune(true);
-    }
-
-    public void showAutotuneStep () {
-        addInfo("Connected. Please autotune");
-    }
-
-    public void setupBluetooth () {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        int REQUEST_ENABLE_BT = 1;
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-
-        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
-        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
-
-
-
-        if (!sp.contains("watch address")) {
-            // XXX: This is a hack solution for now
-            Log.v(TAG, "Looking for watches");
-
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-            BluetoothDevice target = null;
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
-                        if (device.getName().contains("Gear")) {
-                        sp.edit().putString("watch address", device.getAddress()).commit();
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!sp.contains("watch address")) {
-            Log.e(TAG, "Could not find device! Exiting");
-            statusText.setText("Watch not found");
-        } else {
-            String address = sp.getString("watch address", "0");
-            assert !address.equals("0");
-            Log.v(TAG, "Found previous connection " + address);
-            new ConnectThread(address, mBluetoothAdapter, this).start();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    public void setSpeed(String mode) {
-        if (mode.equals("slow")) {
-            player.sound = Player.LONGCHIRP;
-            player.setSpace((int)(0.1*44100));
-            bsocket.tellWatch(bsocket.SLOWMODE);
-            autotuner.sound = autotuner.longchirp;
-            //startAutotune();
-        } else {
-            player.sound = Player.SHORTCHIRP;
-            player.setSpace((int)(0.05*44100));
-            bsocket.tellWatch(bsocket.FASTMODE);
-            autotuner.sound = autotuner.shortchirp;
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        /*
-        Map<Integer, short[]> map = new HashMap<Integer, short[]>();
-
-        map.put(R.id.chirpSound, Player.CHIRP);
-        map.put(R.id.pnSound, Player.PN);
-        map.put(R.id.goldSound, Player.GOLD);
-        map.put(R.id.whitenoiseSound, Player.WN);
-        map.put(R.id.highWhitenoiseSound, Player.WNHIGH);
-        map.put(R.id.highWhitenoiseHannSound, Player.WNHIGHHANN);
-        map.put(R.id.highChirpSound, Player.CHIRPHIGH);
-        map.put(R.id.highChirpHannSound, Player.CHIRPHIGHHANN);
-        int id = item.getItemId();
-        player.changeSound(map.get(id));
-        Toast.makeText(this, "Changed sound", Toast.LENGTH_LONG).show();
-        */
-
-        switch (item.getItemId()) {
-            case R.id.initiateAutotune: startAutotune(); break;
-            case R.id.cutOff: doneFileReceive(); break;
-            case R.id.clearLast: fsaver.deleteLast(); break;
-            case R.id.switchToSlow: setSpeed("slow"); break;
-            case R.id.switchToFast: setSpeed("fast"); break;
-            case R.id.setHoldMode: setMode(Mode.HOLD); break;
-            case R.id.setToggleMode: setMode(Mode.TOGGLE); break;
-        }
-
-
-
-
-        //noinspection SimplifiableIfStatement
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        System.out.println("OnDestroy");
-        player.stopPlaying();
-        recorder.stopRecording();
-        if (recorder.recorder != null) recorder.recorder.release();
-        if (player.audioTrack != null) player.audioTrack.release();
-        bsocket.cancel();
-        fsaver.shutdown();
-    }
 }

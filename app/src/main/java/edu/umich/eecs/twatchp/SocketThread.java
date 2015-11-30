@@ -26,7 +26,6 @@ class SocketThread extends Thread {
     public static byte DO_TAP = 4;
     public static byte DO_DRAW = 5;
 
-
     public static byte START = 6;
     public static byte STOP = 7;
     public static byte STARTFILE = 8;
