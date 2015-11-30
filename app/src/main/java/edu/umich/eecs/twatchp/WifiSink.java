@@ -36,6 +36,7 @@ public class WifiSink extends Thread {
 	//ArrayList<Byte> btData, recData;
 	boolean running = true;
 	byte [] tmpBuffer = new byte [44100];
+    final int SEND_CHUNKSIZE = 10000;
 
     /**
      * File saving debug parameters
@@ -63,6 +64,8 @@ public class WifiSink extends Thread {
 
 	public WifiSink (final MainActivity context, Socket phoneSocket, Socket watchSocket, TapBuffer recTap, TapBuffer btTap) {
 		this.context = context;
+        this.mainActivity = context;
+
         this.phoneSocket = phoneSocket;
         this.watchSocket = watchSocket;
 
@@ -105,19 +108,29 @@ public class WifiSink extends Thread {
             else {
                 //Log.v(TAG, "Opening taps in FSaver");
                 if (btTap.isTapOpen() && btTap.howMany() != 0) {
-                    int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
-                    try {
-                        // XXX: For now, we only send watch data.
-                        watch_out.write(tmpBuffer, 0, got);
-                        watch_tmp.write(tmpBuffer, 0, got);
-                    } catch (Exception e) {
+                    if (closeBTwhenDone) {
+                        int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
+                        Log.v(TAG, "Sending " + got);
+                        try {
+                            watch_out.write(tmpBuffer, 0, got);
+                            watch_tmp.write(tmpBuffer, 0, got);
+                        } catch (Exception e) {
+                        }
+                    } else if (btTap.howMany() > SEND_CHUNKSIZE) {
+                        int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
+                        Log.v(TAG, "Sending " + got);
+                        try {
+                            watch_out.write(tmpBuffer, 0, got);
+                            watch_tmp.write(tmpBuffer, 0, got);
+                        } catch (Exception e) {
+                        }
                     }
                 }
 
                 if (recTap.isTapOpen() && recTap.howMany() != 0) {
                     int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
                     try {
-                        phone_out.write(tmpBuffer, 0, got+1);
+                        phone_out.write(tmpBuffer, 0, got);
                         phone_tmp.write(tmpBuffer, 0, got);
                     } catch (Exception e) {
                     }

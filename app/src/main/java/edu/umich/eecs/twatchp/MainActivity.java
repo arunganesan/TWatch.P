@@ -365,7 +365,7 @@ public class MainActivity extends Activity {
         if (mode.equals("slow")) {
             player.sound = Player.LONGCHIRP;
             //player.setSpace((int)(0.1*44100));
-            player.setSpace((int)(1*44100));
+            player.setSpace((int)(0.5*44100));
             bsocket.tellWatch(bsocket.SLOWMODE);
             autotuner.sound = autotuner.longchirp;
             //startAutotune();
