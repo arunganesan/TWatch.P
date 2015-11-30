@@ -20,18 +20,14 @@ public class WiFiConnectThread extends Thread {
     String TAG = "ConnectThread";
     MainActivity myactivity;
 
-    String name;
     final String SERVERNAME = "ibrad.eecs.umich.edu";
     int SERVERPORT = 3000;
 
     Socket socket;
 
-    public WiFiConnectThread(String name, MainActivity myactivity) {
+    public WiFiConnectThread(MainActivity myactivity) {
         this.myactivity = myactivity;
-        if (name == "phone") SERVERPORT = 3000;
-        else SERVERPORT = 3001;
-        this.name = name;
-    }
+   }
 
     public void connect () {
         boolean notconnected = true;
@@ -89,7 +85,7 @@ public class WiFiConnectThread extends Thread {
         connect();
         myactivity.runOnUiThread(new Runnable () {
             public void run () {
-                myactivity.setWiFiSocket(name, socket);
+                myactivity.setWiFiSocket(socket);
             }
         });
     }

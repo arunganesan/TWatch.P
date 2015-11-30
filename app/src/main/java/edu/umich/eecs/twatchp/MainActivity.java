@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 
     Player player;
     Recorder recorder;
-    TapBuffer btTap, recTap;
+    TapBuffer recTap;
     CountdownBuffer atBuff;
     FileSaver fsaver;
     AutoTuner autotuner;
@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
     String nextMessage = "";
 
     BluetoothSocket btSocket;
-    Socket phoneSocket, watchSocket;
+    Socket phoneSocket;
 
     final static String TAG = "MainActivity";
 
@@ -90,7 +90,6 @@ public class MainActivity extends Activity {
         setupBluetooth();
         //fakeSetBTSocket();
     }
-
 
     public void wireUI () {
         statusText = (TextView) findViewById(R.id.statusText);
@@ -145,15 +144,14 @@ public class MainActivity extends Activity {
         player.turnOffSound();
         player.startPlaying();
 
-        btTap = new SpiralBuffer("BTap");
         recTap = new SpiralBuffer("Rectap");
         atBuff = new CountdownBuffer();
 
         recorder = new Recorder(this, recTap, atBuff);
         //fsaver = new FileSaver(this, btTap, recTap);
         autotuner = new AutoTuner(this, atBuff, recorder, player);
-        wifisink = new WifiSink(this, phoneSocket, watchSocket, recTap, btTap);
-        bsocket = new SocketThread(btSocket, this, btTap);
+        wifisink = new WifiSink(this, phoneSocket, recTap);
+        bsocket = new SocketThread(btSocket, this);
 
         bsocket.start();
         recorder.startRecording();
@@ -224,7 +222,6 @@ public class MainActivity extends Activity {
         player.turnOnSound();
         player.playAligner();
         recTap.openTap();
-        btTap.openTap();
 
         addInfo("Beeping...");
     }
@@ -233,11 +230,6 @@ public class MainActivity extends Activity {
         player.turnOffSound();
         wifisink.stopRecording();
         //fsaver.stopRecording();
-    }
-
-    public void doneFileReceive () {
-        //fsaver.doneBTStream();
-        wifisink.doneBTStream();
     }
 
 
@@ -277,7 +269,7 @@ public class MainActivity extends Activity {
      */
     public void setupNetwork (String name) {
         addInfo("Connecting to network...");
-        new WiFiConnectThread("phone", this).start();
+        new WiFiConnectThread(this).start();
     }
 
 
@@ -288,18 +280,11 @@ public class MainActivity extends Activity {
      * @param socket
      */
     public void setWiFiSocket (String name, Socket socket) {
-        if (name == "phone") phoneSocket = socket;
-        else if (name == "watch") watchSocket = socket;
-
-        if (name == "phone") {
-            addInfo("Connected phone. Trying watch.");
-            new WiFiConnectThread("watch", this).start();
-            return;
-        }
-
-        addInfo("Connected to both streams.");
+        phoneSocket = socket;
+        addInfo("Connected to WiFi stream.");
         doneNetworks();
     }
+
 
     public void doneNetworks () {
         initializeTWatch();
@@ -401,7 +386,7 @@ public class MainActivity extends Activity {
 
         switch (item.getItemId()) {
             case R.id.initiateAutotune: startAutotune(); break;
-            case R.id.cutOff: doneFileReceive(); break;
+            //case R.id.cutOff: doneFileReceive(); break;
             case R.id.clearLast: fsaver.deleteLast(); break;
             case R.id.switchToSlow: setSpeed("slow"); break;
             case R.id.switchToFast: setSpeed("fast"); break;

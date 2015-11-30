@@ -11,11 +11,11 @@ import java.util.ArrayList;
 
 class SocketThread extends Thread {
     private final BluetoothSocket mmSocket;
-    private final InputStream mmInStream;
     private final OutputStream mmOutStream;
+    private final InputStream mmInStream;
+
     private MainActivity myactivity;
     private final String TAG = "ListenerClient";
-    TapBuffer tap;
     public boolean monitor = false;
 
     public static byte START_AUTOTUNE = 0;
@@ -28,17 +28,15 @@ class SocketThread extends Thread {
 
     public static byte START = 6;
     public static byte STOP = 7;
-    public static byte STARTFILE = 8;
 
     public static byte FASTMODE = 9;
     public static byte SLOWMODE = 10;
 
-    public SocketThread(BluetoothSocket socket, MainActivity myactivity, TapBuffer tap) {
+    public SocketThread(BluetoothSocket socket, MainActivity myactivity) {
         mmSocket = socket;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
         this.myactivity = myactivity;
-        this.tap = tap;
 
         // Get the input and output streams, using temp objects because
         // member streams are final
@@ -74,7 +72,6 @@ class SocketThread extends Thread {
     public void run() {
         final byte[] buffer = new byte[4410];  // buffer store for the stream
         int bytes; // bytes returned from read()
-        boolean saveMode = false;
         ArrayList<Byte> sizeBuffer = new ArrayList<Byte>();
         long total_received = 0;
         long total_size = -1;
@@ -87,7 +84,6 @@ class SocketThread extends Thread {
         while (true) {
             try {
                 // Read from the InputStream
-
                 int bytesAvailable = mmInStream.available();
                 if (bytesAvailable > 0) {
                     byte[] curBuf = new byte[bytesAvailable];
@@ -96,66 +92,10 @@ class SocketThread extends Thread {
 
                     bytes = mmInStream.read(curBuf);
 
-                    if (!saveMode) {
-                        for (i = 0; i < bytes; i++) {
-                            if (curBuf[i] == START) myactivity.startChirping();
-                            else if (curBuf[i] == STOP) myactivity.stopChirping();
-                            else if (curBuf[i] == STARTFILE) {
-                                tap.emptyBuffer();
-                                tap.openTap();
-                                sizeBuffer.clear();
-                                saveMode = true;
-
-                                Log.v(TAG, "Receiving file");
-                                myactivity.addInfo("Transfering to phone...");
-
-
-                                if (bytes - i < 8) Log.e(TAG, "Missing length! Total bytes size is " + bytes + " and we are at " + i);
-                                sizeBuffer.add(curBuf[i+1]);
-                                sizeBuffer.add(curBuf[i+2]);
-                                sizeBuffer.add(curBuf[i+3]);
-                                sizeBuffer.add(curBuf[i+4]);
-                                sizeBuffer.add(curBuf[i+5]);
-                                sizeBuffer.add(curBuf[i+6]);
-                                sizeBuffer.add(curBuf[i+7]);
-                                sizeBuffer.add(curBuf[i+8]);
-                                total_size = bytesToLong(primArray(sizeBuffer));
-                                total_received = 0;
-                                Log.v(TAG, "Got file size length. Waiting to transfer total: " + total_size);
-
-                                break;
-
-                                //if ((i+1)+8 == bytes) break;
-                                //else {
-                                //    leftover = new byte[bytes-(i+1)-8];
-                                //    System.arraycopy(curBuf, i+8+1, leftover, 0, bytes-(i+1)-8);
-                                //    break;
-                                //}
-                            }
-                        }
-                    } else if (saveMode) {
-                        if (total_size > total_received) {
-                            //if (leftover != null && leftover.length != 0) {
-                            //    tap.addByteArray(leftover);
-                            //    total_received += leftover.length;
-                            //    leftover = null;
-                            //} else {
-                                tap.addByteArrayLen(curBuf, bytes);
-                                total_received += bytes;
-                                myactivity.addInfo("Transfering to phone... " + total_received + "/" + total_size, 0);
-                            //}
-
-                            //Log.v(TAG, "So far got " + total_received);
-                        }
-
-                        if (total_received >= total_size) {
-                            Log.v(TAG, "Successfully got the file! Total received " + total_received);
-                            myactivity.doneFileReceive();
-                            saveMode = false;
-                        }
+                    for (i = 0; i < bytes; i++) {
+                        if (curBuf[i] == START) myactivity.startChirping();
+                        else if (curBuf[i] == STOP) myactivity.stopChirping();
                     }
-
-
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Exception");

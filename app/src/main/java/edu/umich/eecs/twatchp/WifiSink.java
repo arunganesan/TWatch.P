@@ -36,19 +36,17 @@ public class WifiSink extends Thread {
 	//ArrayList<Byte> btData, recData;
 	boolean running = true;
 	byte [] tmpBuffer = new byte [44100];
-    final int SEND_CHUNKSIZE = 10000;
 
     /**
      * File saving debug parameters
      */
-    FileOutputStream phone_tmp, watch_tmp;
+    FileOutputStream phone_tmp;
     public static String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
     public static String AUDIO_RECORDER_FOLDER = "twatch";
     String AUDIO_RECORDER_PHONE_TMP;
-    String AUDIO_RECORDER_WATCH_TMP;
-    File last_phone, last_watch;
+    File last_phone;
     long now;
-	boolean closeBTwhenDone = false, closeRECwhenDone = false;
+	boolean closeRECwhenDone = false;
 
 	String TAG = "ClientThread";
 	MainActivity context;
@@ -56,36 +54,30 @@ public class WifiSink extends Thread {
     /*
      * Network related variables
      */
-    Socket phoneSocket, watchSocket;
-    BufferedInputStream phone_in, watch_in;
-    BufferedOutputStream phone_out, watch_out;
-    TapBuffer recTap, btTap;
+    Socket phoneSocket;
+    BufferedInputStream phone_in;
+    BufferedOutputStream phone_out;
+    TapBuffer recTap;
 
 
-	public WifiSink (final MainActivity context, Socket phoneSocket, Socket watchSocket, TapBuffer recTap, TapBuffer btTap) {
+	public WifiSink (final MainActivity context, Socket phoneSocket, TapBuffer recTap) {
 		this.context = context;
         this.mainActivity = context;
 
         this.phoneSocket = phoneSocket;
-        this.watchSocket = watchSocket;
 
         try {
             this.phone_in=  new BufferedInputStream(phoneSocket.getInputStream());
             this.phone_out= new BufferedOutputStream(phoneSocket.getOutputStream());
-            this.watch_in=  new BufferedInputStream(watchSocket.getInputStream());
-            this.watch_out= new BufferedOutputStream(watchSocket.getOutputStream());
         } catch (Exception e) {
             Log.e(TAG, "Could not open wifi streams");
         }
 
         this.recTap = recTap;
-        this.btTap = btTap;
 
         String filepath = Environment.getExternalStorageDirectory().getPath();
         File tmpPhone = new File(filepath, "phone_temp.raw");
-        File tmpWatch = new File(filepath, "watch_temp.raw");
         AUDIO_RECORDER_PHONE_TMP = tmpPhone.getAbsolutePath();
-        AUDIO_RECORDER_WATCH_TMP = tmpWatch.getAbsolutePath();
     }
 
     /**
@@ -99,7 +91,7 @@ public class WifiSink extends Thread {
 
 
         while (running) {
-            if (!btTap.isTapOpen() && !recTap.isTapOpen())
+            if (!recTap.isTapOpen())
                 try {
                     //Log.v(TAG, "Both taps closed, sleeping thread " + currentThread().getName());
                     this.sleep(150);
@@ -107,26 +99,6 @@ public class WifiSink extends Thread {
                 }
             else {
                 //Log.v(TAG, "Opening taps in FSaver");
-                if (btTap.isTapOpen() && btTap.howMany() != 0) {
-                    if (closeBTwhenDone) {
-                        int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
-                        Log.v(TAG, "Sending " + got);
-                        try {
-                            watch_out.write(tmpBuffer, 0, got);
-                            watch_tmp.write(tmpBuffer, 0, got);
-                        } catch (Exception e) {
-                        }
-                    } else if (btTap.howMany() > SEND_CHUNKSIZE) {
-                        int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
-                        Log.v(TAG, "Sending " + got);
-                        try {
-                            watch_out.write(tmpBuffer, 0, got);
-                            watch_tmp.write(tmpBuffer, 0, got);
-                        } catch (Exception e) {
-                        }
-                    }
-                }
-
                 if (recTap.isTapOpen() && recTap.howMany() != 0) {
                     int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
                     try {
@@ -140,12 +112,10 @@ public class WifiSink extends Thread {
                     recTap.closeTap();
                 }
 
-                if ((closeBTwhenDone && btTap.howMany() == 0) && (closeRECwhenDone && recTap.howMany() == 0)) {
-                    btTap.closeTap();
+                if (closeRECwhenDone && recTap.howMany() == 0) {
                     recTap.closeTap();
                     try {
                         phone_tmp.close();
-                        watch_tmp.close();
                     } catch (Exception e) {
                     }
 
@@ -154,22 +124,18 @@ public class WifiSink extends Thread {
                     String filepath = Environment.getExternalStorageDirectory().getPath();
                     File file = new File(filepath, AUDIO_RECORDER_FOLDER);
 
-                    String watch_filename = file.getAbsolutePath() + "/watch." + now + AUDIO_RECORDER_FILE_EXT_WAV;
                     String phone_filename = file.getAbsolutePath() + "/phone." + now + AUDIO_RECORDER_FILE_EXT_WAV;
 
                     last_phone = new File(phone_filename);
-                    last_watch = new File(watch_filename);
 
                     AudioFile.CopyWaveFile(AUDIO_RECORDER_PHONE_TMP, phone_filename, mainActivity.recorder.bufferSize);
-                    AudioFile.CopyWaveFile(AUDIO_RECORDER_WATCH_TMP, watch_filename, mainActivity.recorder.bufferSize);
                     //AudioFile.SaveFromBuffer(btData, watch_filename, mainActivity.recorder.bufferSize);
                     //AudioFile.SaveFromBuffer(recData, phone_filename, mainActivity.recorder.bufferSize);
 
-                    Log.v(TAG, "Tap size is bt=" + btTap.howMany() + " rec=" + recTap.howMany());
+                    Log.v(TAG, "Tap size is rec=" + recTap.howMany());
                     Log.v(TAG, "Saved data under name " + now);
                     mainActivity.addInfo("Done!");
 
-                    btTap.emptyBuffer();
                     recTap.emptyBuffer();
                     System.gc();
 
@@ -181,7 +147,6 @@ public class WifiSink extends Thread {
 
                     }
 
-                    closeBTwhenDone = false;
                     closeRECwhenDone = false;
                 }
             }
@@ -194,9 +159,6 @@ public class WifiSink extends Thread {
 			if (phone_in != null) phone_in.close();
 			if (phoneSocket != null) phoneSocket.close();
 
-            if (watch_out != null) watch_out.close();
-            if (watch_in != null) watch_in.close();
-            if (watchSocket != null) watchSocket.close();
 		} catch (IOException e) {
 			Log.e(TAG, "Could not shut down.");
 			// TODO Auto-generated catch block
@@ -211,14 +173,11 @@ public class WifiSink extends Thread {
 
     public void startNewFile () {
         File tmpPhone = new File(AUDIO_RECORDER_PHONE_TMP);
-        File tmpWatch = new File(AUDIO_RECORDER_WATCH_TMP);
 
         if (tmpPhone.exists()) tmpPhone.delete();
-        if (tmpWatch.exists()) tmpWatch.delete();
 
         try {
             phone_tmp = new FileOutputStream(tmpPhone);
-            watch_tmp = new FileOutputStream(tmpWatch);
         } catch (FileNotFoundException e) { }
 
 
@@ -226,9 +185,6 @@ public class WifiSink extends Thread {
         //recData.clear();
         //btData.trimToSize();
         //recData.trimToSize();
-    }
-    public void doneBTStream () {
-        closeBTwhenDone = true;
     }
 
 }
