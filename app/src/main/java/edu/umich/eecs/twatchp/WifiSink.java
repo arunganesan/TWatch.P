@@ -49,32 +49,36 @@ public class WifiSink extends Thread {
     long now;
 	boolean closeBTwhenDone = false, closeRECwhenDone = false;
 
-
-	private BufferedOutputStream server_out;
-	private BufferedInputStream server_in;
-
 	String TAG = "ClientThread";
 	MainActivity context;
 
     /*
      * Network related variables
      */
-    Socket socket;
-    BufferedInputStream wifiIn;
-    BufferedOutputStream wifiOut;
+    Socket phoneSocket, watchSocket;
+    BufferedInputStream phone_in, watch_in;
+    BufferedOutputStream phone_out, watch_out;
     TapBuffer recTap, btTap;
 
 
-	public WifiSink (final MainActivity context, Socket socket, BufferedInputStream wifiIn, BufferedOutputStream wifiOut, TapBuffer recTap, TapBuffer btTap) {
+	public WifiSink (final MainActivity context, Socket phoneSocket, Socket watchSocket, TapBuffer recTap, TapBuffer btTap) {
 		this.context = context;
-        this.socket = socket;
-        this.server_in = wifiIn;
-        this.server_out= wifiOut;
+        this.phoneSocket = phoneSocket;
+        this.watchSocket = watchSocket;
+
+        try {
+            this.phone_in=  new BufferedInputStream(phoneSocket.getInputStream());
+            this.phone_out= new BufferedOutputStream(phoneSocket.getOutputStream());
+            this.watch_in=  new BufferedInputStream(watchSocket.getInputStream());
+            this.watch_out= new BufferedOutputStream(watchSocket.getOutputStream());
+        } catch (Exception e) {
+            Log.e(TAG, "Could not open wifi streams");
+        }
+
         this.recTap = recTap;
         this.btTap = btTap;
 
         String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
         File tmpPhone = new File(filepath, "phone_temp.raw");
         File tmpWatch = new File(filepath, "watch_temp.raw");
         AUDIO_RECORDER_PHONE_TMP = tmpPhone.getAbsolutePath();
@@ -104,7 +108,7 @@ public class WifiSink extends Thread {
                     int got = btTap.getSome(tmpBuffer, tmpBuffer.length);
                     try {
                         // XXX: For now, we only send watch data.
-                        server_out.write(tmpBuffer, 0, got);
+                        watch_out.write(tmpBuffer, 0, got);
                         watch_tmp.write(tmpBuffer, 0, got);
                     } catch (Exception e) {
                     }
@@ -113,11 +117,7 @@ public class WifiSink extends Thread {
                 if (recTap.isTapOpen() && recTap.howMany() != 0) {
                     int got = recTap.getSome(tmpBuffer, tmpBuffer.length);
                     try {
-                        byte[] arr = new byte[got + 1];
-                        for (int i = 0; i < got; i++) arr[i + 1] = tmpBuffer[i];
-                        arr[0] = 0;
-
-                        // server_out.write(tmpBuffer, 0, got+1);
+                        phone_out.write(tmpBuffer, 0, got+1);
                         phone_tmp.write(tmpBuffer, 0, got);
                     } catch (Exception e) {
                     }
@@ -158,10 +158,6 @@ public class WifiSink extends Thread {
 
                     btTap.emptyBuffer();
                     recTap.emptyBuffer();
-                    //btData.clear();
-                    //recData.clear();
-                    //btData.trimToSize();
-                    //recData.trimToSize();
                     System.gc();
 
 
@@ -181,10 +177,13 @@ public class WifiSink extends Thread {
 
 	public void shutdown () {
 		try {
+			if (phone_out != null) phone_out.close();
+			if (phone_in != null) phone_in.close();
+			if (phoneSocket != null) phoneSocket.close();
 
-			if (server_out != null) server_out.close();
-			if (server_in != null) server_in.close();
-			if (socket != null) socket.close();
+            if (watch_out != null) watch_out.close();
+            if (watch_in != null) watch_in.close();
+            if (watchSocket != null) watchSocket.close();
 		} catch (IOException e) {
 			Log.e(TAG, "Could not shut down.");
 			// TODO Auto-generated catch block

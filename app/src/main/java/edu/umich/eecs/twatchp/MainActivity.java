@@ -61,9 +61,7 @@ public class MainActivity extends Activity {
     String nextMessage = "";
 
     BluetoothSocket btSocket;
-    Socket wifiSocket;
-    BufferedInputStream wifiIn;
-    BufferedOutputStream wifiOut;
+    Socket phoneSocket, watchSocket;
 
     final static String TAG = "MainActivity";
 
@@ -154,7 +152,7 @@ public class MainActivity extends Activity {
         recorder = new Recorder(this, recTap, atBuff);
         //fsaver = new FileSaver(this, btTap, recTap);
         autotuner = new AutoTuner(this, atBuff, recorder, player);
-        wifisink = new WifiSink(this, wifiSocket, wifiIn, wifiOut, recTap, btTap);
+        wifisink = new WifiSink(this, phoneSocket, watchSocket, recTap, btTap);
         bsocket = new SocketThread(btSocket, this, btTap);
 
         bsocket.start();
@@ -267,23 +265,39 @@ public class MainActivity extends Activity {
         sp.edit().putString("watch address", socket.getRemoteDevice().getAddress());
         this.btSocket = socket;
         addInfo("Connected to bluetooth.");
-        setupNetwork();
+        setupNetwork("phone");
     }
+
+    /**
+     * Sets up the network. Simply try to connect to the server
+     * and return the socket in a callback function once connection
+     * has been established.
+     *
+     * Does this in a separate thread
+     */
+    public void setupNetwork (String name) {
+        addInfo("Connecting to network...");
+        new WiFiConnectThread("phone", this).start();
+    }
+
 
     /**
      * Callback function from the wifi connect thread. After this, the initialization
      * progresses sequentially by calling doneNetworks()
      *
      * @param socket
-     * @param server_in
-     * @param server_out
      */
-    public void setWiFiSocket (Socket socket, BufferedInputStream server_in, BufferedOutputStream server_out) {
-        wifiSocket = socket;
-        wifiIn = server_in;
-        wifiOut = server_out;
+    public void setWiFiSocket (String name, Socket socket) {
+        if (name == "phone") phoneSocket = socket;
+        else if (name == "watch") watchSocket = socket;
 
-        addInfo("Connected to network.");
+        if (name == "phone") {
+            addInfo("Connected phone. Trying watch.");
+            new WiFiConnectThread("watch", this).start();
+            return;
+        }
+
+        addInfo("Connected to both streams.");
         doneNetworks();
     }
 
@@ -298,19 +312,6 @@ public class MainActivity extends Activity {
 
     public void showAutotuneStep() {
         addInfo("Connected. Please autotune");
-    }
-
-
-    /**
-     * Sets up the network. Simply try to connect to the server
-     * and return the socket in a callback function once connection
-     * has been established.
-     *
-     * Does this in a separate thread
-     */
-    public void setupNetwork () {
-        addInfo("Connecting to network...");
-        new WiFiConnectThread(this).start();
     }
 
     /**
