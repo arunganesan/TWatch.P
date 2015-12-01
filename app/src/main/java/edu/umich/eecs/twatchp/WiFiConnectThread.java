@@ -20,7 +20,9 @@ public class WiFiConnectThread extends Thread {
     String TAG = "ConnectThread";
     MainActivity myactivity;
 
-    final String SERVERNAME = "ibrad.eecs.umich.edu";
+    //final String SERVERNAME = "ibrad.eecs.umich.edu";
+    final String SERVERNAME = "192.168.0.10";
+    //ibrad.eecs.umich.edu";
     int SERVERPORT = 3000;
 
     Socket socket;

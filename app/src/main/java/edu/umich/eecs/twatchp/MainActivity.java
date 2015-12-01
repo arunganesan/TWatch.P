@@ -288,7 +288,7 @@ public class MainActivity extends Activity {
 
     public void doneNetworks () {
         initializeTWatch();
-        setSpeed("slow");
+        setSpeed("fast");
         // XXX. Enable autotune for actual usage.
         //showAutotuneStep();
         //startAutotune();
