@@ -1,13 +1,13 @@
 package edu.umich.eecs.twatchp;
 
+import android.app.DialogFragment;
 import android.os.Vibrator;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v4.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import android.view.Menu;
@@ -40,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity implements WiFiAddressDialog.NoticeDialogListener {
     TextView statusText;
     SharedPreferences sp;
     BluetoothAdapter mBluetoothAdapter;
@@ -126,6 +127,16 @@ public class MainActivity extends Activity {
         });
 
         setMode(Mode.HOLD);
+    }
+
+
+    /**
+     * Dialog listener
+     */
+
+    public void onDialogPositiveClick() {
+        Log.v(TAG, "Trying again with server address " + C.SERVERNAME);
+        new WiFiConnectThread(this).start();
     }
 
     public void setMode (Mode mode) {
@@ -269,7 +280,9 @@ public class MainActivity extends Activity {
      */
     public void setupNetwork (String name) {
         addInfo("Connecting to network...");
-        new WiFiConnectThread(this).start();
+        //new WiFiConnectThread(this).start();
+        WiFiAddressDialog dialog = new WiFiAddressDialog();
+        dialog.show(getFragmentManager(), "AddressDialogFragment");
     }
 
 
@@ -277,7 +290,7 @@ public class MainActivity extends Activity {
      * Callback function from the wifi connect thread. After this, the initialization
      * progresses sequentially by calling doneNetworks()
      *
-     * @param socket
+     * @param socket The wifi socket for streaming the phone recording data.
      */
     public void setWiFiSocket (Socket socket) {
         phoneSocket = socket;
@@ -351,13 +364,13 @@ public class MainActivity extends Activity {
             player.sound = Player.LONGCHIRP;
             //player.setSpace((int)(0.1*44100));
             player.setSpace((int)(0.5*44100));
-            bsocket.tellWatch(bsocket.SLOWMODE);
+            bsocket.tellWatch(SocketThread.SLOWMODE);
             autotuner.sound = autotuner.longchirp;
             //startAutotune();
         } else {
             player.sound = Player.SHORTCHIRP;
             player.setSpace((int)(0.05*44100));
-            bsocket.tellWatch(bsocket.FASTMODE);
+            bsocket.tellWatch(SocketThread.FASTMODE);
             autotuner.sound = autotuner.shortchirp;
         }
     }
