@@ -22,15 +22,13 @@ class SocketThread extends Thread {
     public static byte STOP_AUTOTUNE = 1;
     public static byte START_BORDER= 2;
     public static byte START_NORMAL = 3;
-
     public static byte DO_TAP = 4;
     public static byte DO_DRAW = 5;
-
     public static byte START = 6;
     public static byte STOP = 7;
-
     public static byte FASTMODE = 9;
     public static byte SLOWMODE = 10;
+    public static byte SETSPACE = 11;
 
     public SocketThread(BluetoothSocket socket, MainActivity myactivity) {
         mmSocket = socket;
@@ -70,13 +68,8 @@ class SocketThread extends Thread {
     }
 
     public void run() {
-        final byte[] buffer = new byte[4410];  // buffer store for the stream
         int bytes; // bytes returned from read()
-        ArrayList<Byte> sizeBuffer = new ArrayList<Byte>();
-        long total_received = 0;
-        long total_size = -1;
         int i;
-
 
         Log.v(TAG, "Started socket thread");
         // Keep listening to the InputStream until an exception occurs
@@ -87,8 +80,6 @@ class SocketThread extends Thread {
                 int bytesAvailable = mmInStream.available();
                 if (bytesAvailable > 0) {
                     byte[] curBuf = new byte[bytesAvailable];
-
-                    byte [] leftover = null;
 
                     bytes = mmInStream.read(curBuf);
 
@@ -102,6 +93,18 @@ class SocketThread extends Thread {
                 e.printStackTrace();
                 break;
             }
+        }
+    }
+
+    public void setWatchSpace (long space) {
+        try {
+            byte [] longbytes = longToBytes(space);
+            byte [] fullmessage = new byte [9];
+            fullmessage[0] = SETSPACE;
+            for (int i = 0; i < 8; i++) fullmessage[i+1] = longbytes[i];
+            mmOutStream.write(fullmessage);
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
         }
     }
 

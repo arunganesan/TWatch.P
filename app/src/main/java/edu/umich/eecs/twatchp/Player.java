@@ -42,7 +42,6 @@ public class Player {
 
     //int SPACE = (int)(CHIRP.length * 3);
     double softwareVolume = 0;
-    int SPACE;
 
     MainActivity myActivity;
 
@@ -65,12 +64,12 @@ public class Player {
 
 
     public void resetSpace () {
-        spaceCounter = SPACE + tweakBy;
+        spaceCounter = C.CHIRPSPACE + tweakBy;
         tweakBy = 0;
     }
 
-    public void setSpace (int new_space) { SPACE = new_space; }
-    public int getSpace () { return SPACE; }
+    public void setSpace (int new_space) { C.CHIRPSPACE = new_space; }
+    public int getSpace () { return C.CHIRPSPACE; }
 
     public void turnOnSound () {
         scheduleTurnOn = true;

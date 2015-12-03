@@ -23,10 +23,10 @@ public class ConnectThread extends Thread {
     String address1 = "E4:92:FB:3F:2C:6C";
     String address2 = "D8:90:E8:9A:5B:83";
 
-    public ConnectThread(String address, BluetoothAdapter myAdapter, MainActivity myactivity) {
+    public ConnectThread(BluetoothAdapter myAdapter, MainActivity myactivity) {
         this.myactivity = myactivity;
         this.myAdapter = myAdapter;
-        this.address = address;
+        this.address = address1;
         device = myAdapter.getRemoteDevice(address);
     }
 

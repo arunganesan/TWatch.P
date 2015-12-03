@@ -52,8 +52,8 @@ public class AutoTuner {
             else if (numFound != -1) mainActivity.addInfo("Attempt " + attemptNumber + " (" + numFound + ")", 50);
             else mainActivity.addInfo("Attempt " + attemptNumber, 50);
 
-
-            buffer.storeData(1);
+            int store_for = Math.max(1, (int)Math.ceil((C.CHIRPSPACE*2 + player.sound.length*2)/44100.0));
+            buffer.storeData(store_for);
             Log.v(TAG, "Buffer storing. Buffer has " + buffer.howMany() + " and buffer wants " + buffer.doYouWant());
 
             while (buffer.doYouWant()) {
@@ -77,7 +77,7 @@ public class AutoTuner {
             Log.v(TAG, "Result - " + message + " (" + numFound + ")");
 
 
-            int IDEAL = (int)(2*44100.0/(player.sound.length + player.SPACE));
+            int IDEAL = (int)(2*44100.0/(player.sound.length + C.CHIRPSPACE));
             boolean rerun = false;
 
             //if (!finetune) { // Once in finetune, we stay there.
@@ -85,7 +85,7 @@ public class AutoTuner {
                 finetune = true;
             } else if (numFound > (IDEAL/2 - 2) && numFound < (IDEAL/2 + 2)) {
                 Log.v(TAG, "Overlapped");
-                adjustAmount = (player.sound.length + player.SPACE)/4;
+                adjustAmount = (player.sound.length + C.CHIRPSPACE)/4;
                 rerun = true;
                 finetune = false;
             }

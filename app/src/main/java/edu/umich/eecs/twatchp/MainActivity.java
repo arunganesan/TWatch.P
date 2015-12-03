@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class MainActivity extends FragmentActivity implements WiFiAddressDialog.NoticeDialogListener {
+public class MainActivity extends FragmentActivity implements WiFiAddressDialog.NoticeDialogListener, SpaceDialog.SpaceDialogListener {
     TextView statusText;
     SharedPreferences sp;
     BluetoothAdapter mBluetoothAdapter;
@@ -139,6 +139,10 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
         new WiFiConnectThread(this).start();
     }
 
+    public void doneSettingSpace () {
+        bsocket.setWatchSpace(C.CHIRPSPACE);
+    }
+
     public void setMode (Mode mode) {
         //if (mode == C)
         parentView.removeView(holdButton);
@@ -151,9 +155,14 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
     public void initializeTWatch() {
         player = new Player(this);
         player.setSoftwareVolume(0.1);
-        player.setSpace((int) (0.5 * 44100));
+        player.setSpace(C.CHIRPSPACE);
         player.turnOffSound();
         player.startPlaying();
+
+        int chirpspace = sp.getInt(C.SPACE_KEY, C.CHIRPSPACE);
+        C.CHIRPSPACE = chirpspace;
+
+        Toast.makeText(this, "Starting with server " + C.SERVERNAME + " and space " + C.CHIRPSPACE, Toast.LENGTH_LONG).show();
 
         recTap = new SpiralBuffer("Rectap");
         atBuff = new CountdownBuffer();
@@ -166,7 +175,6 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
 
         bsocket.start();
         recorder.startRecording();
-
 
 
         /**
@@ -265,7 +273,6 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
      */
     public void setBTSocket (BluetoothSocket socket) {
         // Even if another one exists, we update it
-        sp.edit().putString("watch address", socket.getRemoteDevice().getAddress());
         this.btSocket = socket;
         addInfo("Connected to bluetooth.");
         setupNetwork("phone");
@@ -281,8 +288,12 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
     public void setupNetwork (String name) {
         addInfo("Connecting to network...");
         //new WiFiConnectThread(this).start();
+
+        String server = sp.getString(C.SERVER_KEY, C.SERVERNAME);
+        C.SERVERNAME = server;
+
         WiFiAddressDialog dialog = new WiFiAddressDialog();
-        dialog.show(getFragmentManager(), "AddressDialogFragment");
+        dialog.show(getFragmentManager(), "WiFiAddressDialog");
     }
 
 
@@ -322,34 +333,9 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-        //sp.edit().putString("watch address", "E4:92:FB:3F:2C:6C").commit();
-        sp.edit().putString("watch address", "D8:90:E8:9A:5B:83").commit();
 
-        if (!sp.contains("watch address")) {
-            // XXX: This is a hack solution for now
-            Log.v(TAG, "Looking for watches");
+        new ConnectThread(mBluetoothAdapter, this).start();
 
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-            BluetoothDevice target = null;
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
-                        if (device.getName().contains("Gear")) {
-                        sp.edit().putString("watch address", device.getAddress()).commit();
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!sp.contains("watch address")) {
-            Log.e(TAG, "Could not find device! Exiting");
-            statusText.setText("Watch not found");
-        } else {
-            String address = sp.getString("watch address", "0");
-            assert !address.equals("0");
-            Log.v(TAG, "Found previous connection " + address);
-            new ConnectThread(address, mBluetoothAdapter, this).start();
-        }
     }
 
     @Override
@@ -369,8 +355,9 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
             //startAutotune();
         } else {
             player.sound = Player.SHORTCHIRP;
-            player.setSpace((int)(0.05*44100));
+            player.setSpace(C.CHIRPSPACE);
             bsocket.tellWatch(SocketThread.FASTMODE);
+            bsocket.setWatchSpace(C.CHIRPSPACE);
             autotuner.sound = autotuner.shortchirp;
         }
     }
@@ -400,11 +387,12 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
         switch (item.getItemId()) {
             case R.id.initiateAutotune: startAutotune(); break;
             //case R.id.cutOff: doneFileReceive(); break;
-            case R.id.clearLast: fsaver.deleteLast(); break;
             case R.id.switchToSlow: setSpeed("slow"); break;
             case R.id.switchToFast: setSpeed("fast"); break;
-            case R.id.setHoldMode: setMode(Mode.HOLD); break;
-            case R.id.setToggleMode: setMode(Mode.TOGGLE); break;
+            case R.id.setSpeed:
+                SpaceDialog dialog = new SpaceDialog();
+                dialog.show(getFragmentManager(), "SpaceDialog");
+                break;
         }
 
         //noinspection SimplifiableIfStatement
@@ -417,8 +405,8 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
     public void onDestroy() {
         super.onDestroy();
         System.out.println("OnDestroy");
-        player.stopPlaying();
-        recorder.stopRecording();
+        if (player != null) player.stopPlaying();
+        if (recorder != null) recorder.stopRecording();
         if (recorder.recorder != null) recorder.recorder.release();
         if (player.audioTrack != null) player.audioTrack.release();
         bsocket.cancel();
