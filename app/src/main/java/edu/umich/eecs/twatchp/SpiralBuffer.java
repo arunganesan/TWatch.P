@@ -1,12 +1,15 @@
 package edu.umich.eecs.twatchp;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by Arun on 8/14/2014.
  */
 public class SpiralBuffer extends TapBuffer {
-    private byte [] buffer = new byte[200000];
+    private byte [] buffer = new byte[44100*20];
     private String TAG = "BufferManager";
     private final static int FS = 44100;
     private boolean open = false;
@@ -30,7 +33,19 @@ public class SpiralBuffer extends TapBuffer {
             if (length < (buffer.length - (tail - head))) saved = length;
             else saved = (buffer.length - (tail - head));
 
-            if (saved != length) Log.w(TAG, "Skipping data.");
+            if (saved != length) {
+                Log.e(TAG, "Skipping data.");
+
+                C.act.runOnUiThread(new Runnable() {
+                    public void run () {
+                        try {
+                            Toast.makeText(C.act, "Skipping!", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error when skipping:" + e.getMessage());
+                        }
+                    }
+                });
+            }
 
             for (int i = 0; i < saved; i++)  buffer[(tail + i) % buffer.length] = array[i];
 

@@ -48,6 +48,8 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
     SocketThread bsocket;
     SeekBar phoneVolume;
 
+
+
     RelativeLayout parentView;
 
     ImageView holdButton, toggleButton;
@@ -75,6 +77,8 @@ public class MainActivity extends FragmentActivity implements WiFiAddressDialog.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         sp = getSharedPreferences("twatch", Context.MODE_PRIVATE);
 
+
+        C.act = this;
 
         wireUI();
 

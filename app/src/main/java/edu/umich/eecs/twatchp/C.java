@@ -10,4 +10,6 @@ public class C {
 
     public final static String SERVER_KEY = "server";
     public final static String SPACE_KEY = "space";
+
+    public static MainActivity act;
 }
